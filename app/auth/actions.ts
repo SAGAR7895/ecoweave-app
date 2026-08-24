@@ -74,8 +74,34 @@ export async function signup(
   // Email confirmation ON hai to session nahi milta
   if (data.user && !data.session) {
     return {
-      success: `Success! A confirmation link has been sent to ${email}. Please check your inbox and click the link.`,
+      success: `Success! A 6-digit OTP has been sent to ${email}. Please check your inbox (and spam folder).`,
+      values: { email } // Need email for OTP step
     }
+  }
+
+  revalidatePath('/', 'layout')
+  redirect('/dashboard')
+}
+
+// ────────────────────────────────────────────────
+//  VERIFY OTP (SIGNUP)
+// ────────────────────────────────────────────────
+export async function verifySignupOtp(
+  _prev: AuthState,
+  formData: FormData
+): Promise<AuthState> {
+  const email = String(formData.get('email') ?? '').trim().toLowerCase()
+  const token = String(formData.get('otp') ?? '').trim()
+
+  if (!token) {
+    return { error: 'Please enter the 6-digit OTP.', values: { email } }
+  }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.verifyOtp({ email, token, type: 'signup' })
+
+  if (error) {
+    return { error: error.message, values: { email } }
   }
 
   revalidatePath('/', 'layout')

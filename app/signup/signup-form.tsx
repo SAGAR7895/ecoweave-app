@@ -3,7 +3,7 @@
 import { useActionState } from 'react'
 import { useFormStatus } from 'react-dom'
 import Link from 'next/link'
-import { signup, type AuthState } from '@/app/auth/actions'
+import { signup, verifySignupOtp, type AuthState } from '@/app/auth/actions'
 
 function SubmitButton() {
   const { pending } = useFormStatus()
@@ -14,28 +14,64 @@ function SubmitButton() {
   )
 }
 
-export default function SignupForm() {
-  const [state, formAction] = useActionState<AuthState, FormData>(signup, null)
+function VerifyButton() {
+  const { pending } = useFormStatus()
+  return (
+    <button type="submit" className="btn btn-primary" disabled={pending}>
+      {pending ? 'Verifying…' : 'Verify OTP'}
+    </button>
+  )
+}
 
-  // Signup ho gaya — ab email confirm karna hai
-  if (state?.success) {
+export default function SignupForm() {
+  const [signupState, signupAction] = useActionState<AuthState, FormData>(signup, null)
+  const [otpState, otpAction] = useActionState<AuthState, FormData>(verifySignupOtp, null)
+
+  // Is we are in OTP step? (Either signup succeeded OR we attempted OTP and got an error)
+  const isOtpStep = signupState?.success || otpState?.error || otpState?.success
+
+  // We need the email to verify the OTP
+  const email = otpState?.values?.email || signupState?.values?.email || ''
+
+  if (isOtpStep) {
     return (
-      <>
-        <div className="msg msg-ok">{state.success}</div>
-        <p className="auth-sub">
-          Didn&apos;t receive the email? Check your spam folder. The link is
-          valid for 24 hours.
+      <form action={otpAction} noValidate>
+        {signupState?.success && !otpState?.error && (
+          <div className="msg msg-ok">{signupState.success}</div>
+        )}
+        {otpState?.error && (
+          <div className="msg msg-error">{otpState.error}</div>
+        )}
+
+        <input type="hidden" name="email" value={email} />
+
+        <div className="field">
+          <label htmlFor="otp">Enter 6-digit OTP</label>
+          <input
+            id="otp"
+            name="otp"
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={6}
+            placeholder="123456"
+            autoComplete="one-time-code"
+            required
+          />
+        </div>
+
+        <VerifyButton />
+
+        <p className="auth-alt" style={{ marginTop: '1rem' }}>
+          <Link href="/login">Cancel & go to Login</Link>
         </p>
-        <Link href="/login" className="btn btn-ghost">
-          Go to Login page
-        </Link>
-      </>
+      </form>
     )
   }
 
   return (
-    <form action={formAction} noValidate>
-      {state?.error && <div className="msg msg-error">{state.error}</div>}
+    <form action={signupAction} noValidate>
+      {signupState?.error && <div className="msg msg-error">{signupState.error}</div>}
 
       <div className="field">
         <label htmlFor="full_name">Full Name</label>
@@ -44,7 +80,7 @@ export default function SignupForm() {
           name="full_name"
           type="text"
           autoComplete="name"
-          defaultValue={state?.values?.full_name ?? ''}
+          defaultValue={signupState?.values?.full_name ?? ''}
           placeholder="Aarav Sharma"
           required
         />
@@ -57,7 +93,7 @@ export default function SignupForm() {
           name="email"
           type="email"
           autoComplete="email"
-          defaultValue={state?.values?.email ?? ''}
+          defaultValue={signupState?.values?.email ?? ''}
           placeholder="you@example.com"
           required
         />
@@ -71,7 +107,7 @@ export default function SignupForm() {
           type="tel"
           inputMode="numeric"
           autoComplete="tel"
-          defaultValue={state?.values?.phone ?? ''}
+          defaultValue={signupState?.values?.phone ?? ''}
           placeholder="9876543210"
         />
         <p className="field-hint">
