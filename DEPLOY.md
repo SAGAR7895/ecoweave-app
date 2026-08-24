@@ -4,18 +4,18 @@
 
 Supabase ke do raste hain. **Sirf ek chunna hai, dono nahi.**
 
-### 🅰️ Supabase Cloud (free tier)
+### 🅰️ Supabase Cloud (free tier) ← *tumne ye chuna hai*
 
 Neeche wali poori file, seedha upar se neeche:
 
 ```
 DEPLOY.md  A1 → A6      (Supabase cloud setup)
-DEPLOY.md  B0 → B9      (server + Next.js + Caddy)
+DEPLOY.md  B0 → B9      (server + Next.js + IIS)
 ```
 
 SELF-HOSTING.md ko haath mat lagana.
 
-### 🅱️ Self-hosted Supabase (Docker) ← *tumne ye chuna hai*
+### 🅱️ Self-hosted Supabase (Docker)
 
 Yahan dono files mix hoti hain. **Ye exact order** follow karo:
 
@@ -171,7 +171,7 @@ npm run build
 
 ```powershell
 npm install -g pm2
-pm2 start npm --name ecoweave -- start
+pm2 start node_modules\next\dist\bin\next --name ecoweave -- start -H 127.0.0.1
 pm2 save
 ```
 
@@ -200,30 +200,21 @@ Apne domain provider (GoDaddy / Hostinger / BigRock) ke DNS panel mein:
 
 DNS phailne mein 5 minute se 1 ghanta lag sakta hai. Check: `nslookup ecoweave.in`
 
-### B7. Caddy se HTTPS lagao
-Ye sabse aasan hissa hai. Caddy **khud SSL certificate le lega, free, aur khud renew karega**.
+### B7. IIS se Reverse Proxy aur HTTPS lagao
+Ye sabse professional tareeka hai kyunki agar server par pehle se IIS (jaise ERP) chal raha hai, to wo disturb nahi hoga.
 
-`C:\caddy\Caddyfile` naam se file banao:
-
-```
-ecoweave.in, www.ecoweave.in {
-    reverse_proxy localhost:3000
-}
-```
-
-Phir chalao:
-
+1. **Extensions:** Server par **URL Rewrite** aur **Application Request Routing (ARR)** download karke install karo.
+2. **IIS Site Setup:** PowerShell (Admin) mein ye chalao:
 ```powershell
-cd C:\caddy
-caddy run --config Caddyfile
+Import-Module WebAdministration
+Set-WebConfigurationProperty -pspath 'MACHINE/WEBROOT/APPHOST' -filter "system.webServer/proxy" -name "enabled" -value "True"
+New-Website -Name "EcoWeave" -Port 80 -HostHeader "www.ecoweave.in" -PhysicalPath "C:\ecoweave-app"
+New-WebBinding -Name "EcoWeave" -IPAddress "*" -Port 80 -HostHeader "ecoweave.in"
 ```
-
-Sab theek chale to service bana do (hamesha chalti rahe):
-
+3. **web.config:** `C:\ecoweave-app\web.config` file mein HTTP-to-HTTPS aur Reverse Proxy rules daalo.
+4. **HTTPS / SSL:** **win-acme** download karo aur IIS ke liye auto-certificate generate karo:
 ```powershell
-caddy stop
-sc.exe create caddy start= auto binPath= "C:\caddy\caddy.exe run --config C:\caddy\Caddyfile"
-sc.exe start caddy
+wacs.exe --target iis --site "EcoWeave" --installation iis --accepttos --email "admin@ecoweave.in"
 ```
 
 ### B8. Firewall kholo

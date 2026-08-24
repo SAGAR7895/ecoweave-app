@@ -32,6 +32,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# ...par template file commit honi chahiye — usme sirf placeholder values hain,
+# aur fresh clone ke baad pata hona chahiye ki kaunse vars chahiye.
+!.env.local.example
 
 # vercel
 .vercel
