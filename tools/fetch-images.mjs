@@ -39,10 +39,8 @@ const IMAGES = [
   // Hero ka background ab Sagar ki apni photo hai (hero-traditional-weaver.jpg),
   // Unsplash se nahi — isliye wo yahan manage nahi hoti. Apni images ko is list
   // mein mat daalo; ye list sirf Unsplash se aane wali photos ke liye hai.
-  ['textile-window-curtain.jpg', 'cTA8m7VwejE', 800, 'Hero — Window Curtains card'],
-  ['textile-table-linen.jpg', 'ThxRqog_wU4', 800, 'Hero — Table Linen card'],
-  ['textile-shower-curtain.jpg', 'PBfJC5h-G48', 800, 'Hero — Shower Curtains card'],
-  ['textile-bed-linen.jpg', '0Ymt53tBapQ', 800, 'Hero — Bed Linen card'],
+  // (Hero ke 4 chhote cards hata diye gaye, isliye un images ki entries bhi
+  // yahan se nikal di gayi.)
 
   // ---- Platform ---------------------------------------------------------
   ['platform-weaver-at-loom.jpg', 'XSs7xXS71pM', 1200, 'Platform — section image'],

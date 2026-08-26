@@ -33,34 +33,8 @@ export default function Hero() {
             <span className="cpb-text">· Biodegradable Technology</span>
           </div>
         </div>
-        <div className="hero-right">
-          <div className="hero-cards">
-            <div className="hcard">
-              <SafeImg src="/images/textile-window-curtain.jpg" alt="Window Curtain"  />
-              <div className="hcard-bg" style={{ display: 'none' }}>🪟</div>
-              <span className="hcard-badge">CiCLO®</span>
-              <div className="hcard-label">Window Curtains</div>
-            </div>
-            <div className="hcard">
-              <SafeImg src="/images/textile-table-linen.jpg" alt="Table Linen"  />
-              <div className="hcard-bg" style={{ display: 'none' }}>🍽️</div>
-              <span className="hcard-badge">CiCLO®</span>
-              <div className="hcard-label">Table Linen</div>
-            </div>
-            <div className="hcard">
-              <SafeImg src="/images/textile-shower-curtain.jpg" alt="Shower Curtain"  />
-              <div className="hcard-bg" style={{ display: 'none' }}>🚿</div>
-              <span className="hcard-badge">CiCLO®</span>
-              <div className="hcard-label">Shower Curtains</div>
-            </div>
-            <div className="hcard">
-              <SafeImg src="/images/textile-bed-linen.jpg" alt="Bed Linen"  />
-              <div className="hcard-bg" style={{ display: 'none' }}>🛏️</div>
-              <span className="hcard-badge">CiCLO®</span>
-              <div className="hcard-label">Bed Linen</div>
-            </div>
-          </div>
-        </div>
+        {/* Hero-right cards hata diye — ab right column background weaver photo
+            dikhata hai (gradient us taraf transparent hai). */}
       </div>
     </section>
   )

@@ -16,10 +16,6 @@ photo `hero-traditional-weaver.jpg` hai — wo yahan list nahi hoti.)
 
 | File | Photographer | Kahan use hoti hai | Unsplash |
 | --- | --- | --- | --- |
-| `textile-window-curtain.jpg` | Katsia Jazwinska | Hero — Window Curtains card | [cTA8m7VwejE](https://unsplash.com/photos/beige-curtain-cTA8m7VwejE) |
-| `textile-table-linen.jpg` | Anita Austvika | Hero — Table Linen card | [ThxRqog_wU4](https://unsplash.com/photos/a-table-with-a-white-table-cloth-and-silverware-ThxRqog_wU4) |
-| `textile-shower-curtain.jpg` | Brianna Lengacher | Hero — Shower Curtains card | [PBfJC5h-G48](https://unsplash.com/photos/a-bathroom-with-a-white-shower-curtain-next-to-a-window-PBfJC5h-G48) |
-| `textile-bed-linen.jpg` | Rehina Sultanova | Hero — Bed Linen card | [0Ymt53tBapQ](https://unsplash.com/photos/brown-and-white-bed-linen-0Ymt53tBapQ) |
 | `platform-weaver-at-loom.jpg` | Joel Heard | Platform — section image | [XSs7xXS71pM](https://unsplash.com/photos/a-woman-is-working-on-a-weaving-machine-XSs7xXS71pM) |
 | `artisan-shakil-ahamad.jpg` | Akhil Pawar | Shakil Ahamad — darri weaving | [XCd_6nOdzjo](https://unsplash.com/photos/a-man-is-working-on-a-weaving-machine-XCd_6nOdzjo) |
 | `artisan-prem-chand.jpg` | The Ordinary Moments | Prem Chand — handloom weaving | [SzNNXMKQ-4w](https://unsplash.com/photos/a-man-weaving-colorful-threads-on-a-traditional-wooden-loom-SzNNXMKQ-4w) |
