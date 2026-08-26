@@ -10,8 +10,11 @@ export default function Duo() {
 
         {/* AARAV — Left */}
         <div className="duo-card" style={{ background: 'var(--cream)', display: 'flex', flexDirection: 'column' }}>
-          {/* Aarav Photo */}
-          <div style={{ height: '380px', overflow: 'hidden', position: 'relative' }}>
+          {/* Aarav Photo — height fixed karne ki jagah aspect-ratio fix kiya hai,
+              taaki har screen size pe crop bilkul same dikhe. Pehle height:380px
+              tha par card ki width screen ke saath badalti thi, isse container ka
+              shape badal jaata aur object-fit:cover alag-alag crop dikhata. */}
+          <div style={{ aspectRatio: '4 / 5', overflow: 'hidden', position: 'relative' }}>
             <img src="/images/aarav.jpg"
                  alt="Aarav Gupta — Co-Founder &amp; CEO, EcoWeave®"
                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 18%', display: 'block' }} />
@@ -47,11 +50,11 @@ export default function Duo() {
         {/* borderLeft hata diya — grid ka 1px gap pehle se hi divider bana raha
             tha, do line ban rahi thi aur ye card 1px patla ho jaata tha. */}
         <div className="duo-card" style={{ background: 'var(--cream)', display: 'flex', flexDirection: 'column' }}>
-          {/* Navya photo */}
-          <div style={{ height: '380px', overflow: 'hidden', position: 'relative' }}>
+          {/* Navya photo — same 4/5 aspect-ratio (upar Aarav wala comment dekho). */}
+          <div style={{ aspectRatio: '4 / 5', overflow: 'hidden', position: 'relative' }}>
             <img src="/images/navya.jpg"
                  alt="Navya Gupta — Co-Founder &amp; Design Lead, EcoWeave®"
-                 style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
+                 style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', display: 'block' }} />
             <div style={{ position: 'absolute', inset: '0', background: 'linear-gradient(to top,rgba(28,20,8,.5) 0%,transparent 55%)' }}></div>
             <div style={{ position: 'absolute', bottom: '1.5rem', left: '1.75rem', right: '1.75rem' }}>
               <div style={{ fontSize: '.55rem', fontWeight: '500', letterSpacing: '.12em', textTransform: 'uppercase', color: 'rgba(255,220,190,.9)', marginBottom: '.3rem' }}>✏️ Co-Founder &amp; Design Lead</div>
