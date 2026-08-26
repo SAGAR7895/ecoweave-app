@@ -4,8 +4,8 @@ export default function Hero() {
   return (
     <section className="hero" id="top">
       <div className="hero-bg">
-        <SafeImg src="/images/hero-artisan-weaving.jpg"
-             alt="Artisan weaving"
+        <SafeImg src="/images/hero-traditional-weaver.jpg"
+             alt="Traditional weaver at a handloom"
               />
       </div>
       <div className="hero-content">

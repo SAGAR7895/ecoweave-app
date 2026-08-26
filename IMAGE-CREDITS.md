@@ -6,6 +6,8 @@ commercial use allow karta hai aur attribution zaroori nahi hai; ye list credit
 dene ke liye aur source track karne ke liye hai.
 
 Ye file `node tools/fetch-images.mjs` se generate hoti hai — haath se mat edit karo.
+(Neeche wali table sirf Unsplash images ki hai. Hero background ab Sagar ki apni
+photo `hero-traditional-weaver.jpg` hai — wo yahan list nahi hoti.)
 
 > **Dhyaan rahe:** Ye stock photos hain, EcoWeave ke asli artisans ki nahi.
 > Unsplash License identifiable logon ke personality rights cover nahi karta,
@@ -14,7 +16,6 @@ Ye file `node tools/fetch-images.mjs` se generate hoti hai — haath se mat edit
 
 | File | Photographer | Kahan use hoti hai | Unsplash |
 | --- | --- | --- | --- |
-| `hero-artisan-weaving.jpg` | Akhil Pawar | Hero — background | [XCd_6nOdzjo](https://unsplash.com/photos/a-man-is-working-on-a-weaving-machine-XCd_6nOdzjo) |
 | `textile-window-curtain.jpg` | Katsia Jazwinska | Hero — Window Curtains card | [cTA8m7VwejE](https://unsplash.com/photos/beige-curtain-cTA8m7VwejE) |
 | `textile-table-linen.jpg` | Anita Austvika | Hero — Table Linen card | [ThxRqog_wU4](https://unsplash.com/photos/a-table-with-a-white-table-cloth-and-silverware-ThxRqog_wU4) |
 | `textile-shower-curtain.jpg` | Brianna Lengacher | Hero — Shower Curtains card | [PBfJC5h-G48](https://unsplash.com/photos/a-bathroom-with-a-white-shower-curtain-next-to-a-window-PBfJC5h-G48) |

@@ -36,7 +36,9 @@ const CREDITS = join(ROOT, 'IMAGE-CREDITS.md')
  */
 const IMAGES = [
   // ---- Hero -------------------------------------------------------------
-  ['hero-artisan-weaving.jpg', 'XCd_6nOdzjo', 1800, 'Hero — background'],
+  // Hero ka background ab Sagar ki apni photo hai (hero-traditional-weaver.jpg),
+  // Unsplash se nahi — isliye wo yahan manage nahi hoti. Apni images ko is list
+  // mein mat daalo; ye list sirf Unsplash se aane wali photos ke liye hai.
   ['textile-window-curtain.jpg', 'cTA8m7VwejE', 800, 'Hero — Window Curtains card'],
   ['textile-table-linen.jpg', 'ThxRqog_wU4', 800, 'Hero — Table Linen card'],
   ['textile-shower-curtain.jpg', 'PBfJC5h-G48', 800, 'Hero — Shower Curtains card'],
