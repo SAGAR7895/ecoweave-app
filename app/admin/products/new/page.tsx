@@ -6,7 +6,7 @@ export default function NewProductPage() {
   return (
     <>
       <div className="adm-head">
-        <h1>Naya product</h1>
+        <h1>New product</h1>
         <Link href="/admin/products" className="adm-link">
           ← Products
         </Link>
@@ -17,8 +17,8 @@ export default function NewProductPage() {
       </div>
 
       <p className="adm-hint">
-        Photos agle step pe lagengi — unhe product ki id chahiye hoti hai,
-        jo save karne pe hi banti hai.
+        Photos come next — they need the product&rsquo;s id, which only exists
+        once it has been saved.
       </p>
     </>
   )

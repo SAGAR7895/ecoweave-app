@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 }
 
 /**
- * Layout mein guard lagane ka matlab: /admin ke neeche har page
- * apne aap suraksha ke andar hai. Naya page banate waqt check
- * lagana bhool jana mumkin nahi rehta.
+ * Guarding in the layout means every page under /admin is covered by
+ * default, so a page added later cannot be the one where somebody
+ * forgot to add the check.
  *
- * Actions apna check khud bhi karti hain — layout render karna
- * request rokne ka boundary nahi hai.
+ * The actions check again on their own. Rendering a layout is not a
+ * boundary that stops a request.
  */
 export default async function AdminLayout({
   children,

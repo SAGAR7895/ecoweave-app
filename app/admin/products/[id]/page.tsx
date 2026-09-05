@@ -33,8 +33,7 @@ export default async function EditProductPage({
 
       {created === '1' && (
         <div className="msg msg-ok">
-          Product ban gaya. Ab photos lagao, phir “Shop pe dikhao” on karke save
-          kar do.
+          Product created. Add the photos, then tick “Show on the shop” and save.
         </div>
       )}
 
@@ -52,7 +51,7 @@ export default async function EditProductPage({
 
         {product.images.length === 0 ? (
           <p className="adm-hint">
-            Abhi koi photo nahi. Photo ke bina shop ke card pe sirf icon dikhega.
+            No photos yet. Without one, the shop card shows only the icon.
           </p>
         ) : (
           <div className="adm-photos">
@@ -60,7 +59,7 @@ export default async function EditProductPage({
               <figure className="adm-photo" key={img.id}>
                 <SafeImg src={imageUrl(img.path)} alt={img.alt || product.name} />
 
-                {index === 0 && <span className="adm-photo-main">Shop pe yahi</span>}
+                {index === 0 && <span className="adm-photo-main">On the shop</span>}
 
                 <figcaption>
                   {index !== 0 && (
@@ -68,7 +67,7 @@ export default async function EditProductPage({
                       <input type="hidden" name="image_id" value={img.id} />
                       <input type="hidden" name="product_id" value={product.id} />
                       <button type="submit" className="adm-link">
-                        Ise main banao
+                        Make main
                       </button>
                     </form>
                   )}
@@ -78,10 +77,10 @@ export default async function EditProductPage({
                     <input type="hidden" name="product_id" value={product.id} />
                     <ConfirmButton
                       className="adm-link adm-link-danger"
-                      message="Ye photo hata di jaye? Wapas nahi aayegi."
-                      pendingLabel="Hata rahe hain…"
+                      message="Remove this photo? It cannot be brought back."
+                      pendingLabel="Removing…"
                     >
-                      Hatao
+                      Remove
                     </ConfirmButton>
                   </form>
                 </figcaption>
@@ -92,20 +91,19 @@ export default async function EditProductPage({
       </div>
 
       <div className="adm-card adm-card-danger">
-        <h2>Product hatao</h2>
+        <h2>Delete product</h2>
         <p className="adm-hint">
-          Product aur uski saari photos hamesha ke liye chali jayengi. Sirf shop
-          se hatana ho to upar “Shop pe dikhao” band kar dena — product bacha
-          rahega.
+          The product and all of its photos go for good. To take it off the shop
+          without losing it, untick “Show on the shop” above instead.
         </p>
         <form action={deleteProduct}>
           <input type="hidden" name="id" value={product.id} />
           <ConfirmButton
             className="adm-btn adm-btn-danger"
-            message={`"${product.name}" aur uski saari photos hamesha ke liye hata di jayengi. Pakka?`}
-            pendingLabel="Hata rahe hain…"
+            message={`"${product.name}" and all of its photos will be deleted permanently. Are you sure?`}
+            pendingLabel="Deleting…"
           >
-            Hamesha ke liye hatao
+            Delete permanently
           </ConfirmButton>
         </form>
       </div>

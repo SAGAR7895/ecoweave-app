@@ -23,11 +23,11 @@ export default async function AdminProductsPage({
       <div className="adm-head">
         <h1>Products</h1>
         <Link href="/admin/products/new" className="adm-btn adm-btn-primary">
-          + Naya product
+          + New product
         </Link>
       </div>
 
-      {deleted === '1' && <div className="msg msg-ok">Product hata diya gaya.</div>}
+      {deleted === '1' && <div className="msg msg-ok">Product deleted.</div>}
 
       {CATEGORIES.map((cat) => {
         const rows = products.filter((p) => p.category === cat)
@@ -39,13 +39,13 @@ export default async function AdminProductsPage({
             </h2>
 
             {rows.length === 0 ? (
-              <p className="adm-hint">Is category mein abhi koi product nahi hai.</p>
+              <p className="adm-hint">No products in this category yet.</p>
             ) : (
               <table className="adm-table">
                 <thead>
                   <tr>
                     <th style={{ width: 64 }}>Photo</th>
-                    <th>Naam</th>
+                    <th>Name</th>
                     <th className="adm-num">Price</th>
                     <th className="adm-num">Photos</th>
                     <th>Status</th>

@@ -1,14 +1,15 @@
 /**
- * Products ke shared types aur helpers.
+ * Shared product types and helpers.
  *
- * Products ab Supabase ke `products` table mein hain, admin panel se
- * add/edit hote hain. Pehle ye file khud hi 15 products ka hardcoded
- * list thi — wo list ab supabase/schema-phase3.sql ke seed mein hai.
+ * Products now live in Supabase's `products` table and are edited from
+ * the admin panel. This file used to be the hardcoded list of fifteen
+ * itself; that list is now the seed at the bottom of
+ * supabase/schema-phase3.sql.
  *
- * Yahan sirf wo cheezein hain jo client aur server dono ko chahiye,
- * isliye is file mein koi server-only import nahi aana chahiye —
- * warna 'use client' components build hote waqt toot jayenge.
- * DB se padhne ka kaam lib/queries.ts mein hai.
+ * Only what both the client and the server need belongs here, so
+ * nothing server-only may be imported into this file — a 'use client'
+ * component that reaches it would fail to build.
+ * Reading from the database happens in lib/queries.ts.
  */
 
 export type Category = 'rugs' | 'shower' | 'table'
@@ -21,7 +22,7 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   table: 'Table Linen',
 }
 
-/** Admin ke uploads ka Supabase Storage bucket. */
+/** The Supabase Storage bucket that admin uploads go into. */
 export const PRODUCT_BUCKET = 'product-images'
 
 export type ProductImage = {
@@ -51,16 +52,16 @@ export function formatPrice(paise: number): string {
 }
 
 /**
- * Admin form ka "3999" ya "3,999.50" -> paise.
+ * The admin form's "3999" or "3,999.50" -> paise.
  *
- * Number(x) * 100 se nahi kiya: 39.99 * 100 JavaScript mein
- * 3998.9999999999995 deta hai, aur Math.round use karne ke baad bhi
- * ye wo tarah ki galti hai jo mahine baad ek rupaye ke fark mein
- * dikhti hai. Rupaye aur paise alag-alag integer mein jodna seedha
- * aur bilkul theek hai.
+ * Not Number(x) * 100: in JavaScript 39.99 * 100 is
+ * 3998.9999999999995, and even with Math.round on top, that is the
+ * kind of error that turns up months later as a one-rupee discrepancy
+ * nobody can explain. Adding rupees and paise as separate integers is
+ * both simpler and exactly right.
  *
- * Galat input pe null — taaki caller ko sochna pade, aur 0 chup-chaap
- * price na ban jaye.
+ * null on bad input, so the caller has to decide what to do rather
+ * than letting a zero become the price.
  */
 export function parsePriceToPaise(input: string): number | null {
   const cleaned = input.replace(/[₹,\s]/g, '')
@@ -70,23 +71,23 @@ export function parsePriceToPaise(input: string): number | null {
   return Number(rupees) * 100 + Number(paise.padEnd(2, '0'))
 }
 
-/** 399900 -> "3999.00", admin form ke input mein bharne ke liye. */
+/** 399900 -> "3999.00", for filling the admin form's input. */
 export function paiseToInput(paise: number): string {
   return (paise / 100).toFixed(2)
 }
 
 /**
- * Photo ka path -> browser ke liye URL.
+ * A photo's stored path -> a URL the browser can use.
  *
- * Do tarah ke path aate hain, aur dono chalte rehne chahiye:
+ * Two kinds of path arrive here, and both have to keep working:
  *
- *   "/images/product-rug-sage.jpg"  repo ki public/ folder se — ye
- *                                   purane 15 products hain, jo seed
- *                                   mein waise hi rakhe gaye taaki
- *                                   unhe dobara upload na karna pade
+ *   "/images/product-rug-sage.jpg"  the repo's public/ folder — the
+ *                                   original fifteen products, kept
+ *                                   exactly as they were by the seed so
+ *                                   nothing had to be re-uploaded
  *
- *   "a1b2c3/photo.jpg"              Supabase Storage bucket se — admin
- *                                   ke naye uploads
+ *   "a1b2c3/photo.jpg"              the Supabase Storage bucket — every
+ *                                   photo added from the admin panel
  */
 export function imageUrl(path: string): string {
   if (!path) return ''
@@ -96,7 +97,7 @@ export function imageUrl(path: string): string {
   return `${base}/storage/v1/object/public/${PRODUCT_BUCKET}/${path}`
 }
 
-/** Shop ke card pe dikhne wali photo — sabse chhote sort_order wali. */
+/** The photo shown on the shop card — the one with the lowest sort_order. */
 export function primaryImage(product: Product): ProductImage | null {
   return product.images.length > 0 ? product.images[0] : null
 }

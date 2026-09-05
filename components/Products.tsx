@@ -13,9 +13,9 @@ import {
 } from '@/lib/products'
 
 /**
- * Products ab DB se aate hain (dekho lib/queries.ts). Ye component
- * client hai — tabs aur wishlist ke liye — isliye data upar se prop
- * mein aata hai, yahan fetch nahi hota.
+ * Products come from the database now (see lib/queries.ts). This
+ * component is a client one — it owns the tabs and the wishlist — so
+ * the data is passed down as a prop rather than fetched here.
  */
 export default function Products({
   products,

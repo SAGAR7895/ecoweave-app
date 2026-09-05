@@ -3,10 +3,11 @@
 import { useFormStatus } from 'react-dom'
 
 /**
- * Submit button jo pehle poochta hai.
+ * A submit button that asks first.
  *
- * Delete ke liye. Server action apne aap mein wapas nahi aati, isliye
- * ek galat click ka koi undo nahi hai — poochna hi ekmatra rok hai.
+ * For deletes. A server action does not undo itself, so a mistaken
+ * click has no way back — asking is the only thing standing in front
+ * of it.
  */
 export default function ConfirmButton({
   message,
@@ -30,7 +31,7 @@ export default function ConfirmButton({
         if (!window.confirm(message)) e.preventDefault()
       }}
     >
-      {pending ? (pendingLabel ?? 'Ho raha hai…') : children}
+      {pending ? (pendingLabel ?? 'Working…') : children}
     </button>
   )
 }

@@ -43,7 +43,7 @@ export default async function AdminHome() {
         </Link>
         <Link href="/admin/products" className="adm-stat">
           <span className="adm-stat-n">{draftCount ?? 0}</span>
-          <span className="adm-stat-l">Draft (shop pe nahi)</span>
+          <span className="adm-stat-l">Draft (not on the shop)</span>
         </Link>
         <Link href="/admin/users" className="adm-stat">
           <span className="adm-stat-n">{userCount ?? 0}</span>
@@ -56,7 +56,7 @@ export default async function AdminHome() {
       </div>
 
       <div className="adm-card">
-        <h2>Shop mein abhi</h2>
+        <h2>Live in the shop</h2>
         <table className="adm-table">
           <tbody>
             {CATEGORIES.map((cat) => (
@@ -68,7 +68,7 @@ export default async function AdminHome() {
           </tbody>
         </table>
         <p className="adm-hint">
-          Sirf published products gine gaye hain — jo customer ko dikhte hain.
+          Published products only — the ones a customer can actually see.
         </p>
       </div>
     </>

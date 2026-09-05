@@ -15,9 +15,9 @@ export default function AdminNav() {
   return (
     <nav className="adm-tabs">
       {TABS.map(([href, label]) => {
-        // startsWith se /admin/products/<id> pe bhi "Products" active
-        // rehta hai. Sirf === hota to edit page pe koi bhi tab
-        // highlight na hoti aur lagta ki aap panel se bahar aa gaye.
+        // startsWith keeps "Products" lit on /admin/products/<id> too.
+        // With === alone, no tab would be highlighted on an edit page
+        // and it would feel like you had left the panel.
         const active = pathname === href || pathname.startsWith(href + '/')
         return (
           <Link key={href} href={href} className={active ? 'adm-tab active' : 'adm-tab'}>

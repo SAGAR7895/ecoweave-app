@@ -26,8 +26,8 @@ export default async function AdminUsersPage() {
   const admin = await requireAdmin()
   const supabase = await createClient()
 
-  // Email auth.users mein hai, jo API se bahar hai — isliye ye admin-only
-  // function. Dekho schema-phase3.sql section 7.
+  // Email lives in auth.users, which is not exposed through the API, so
+  // this admin-only function fetches it. See schema-phase3.sql, part 7.
   const { data, error } = await supabase.rpc('admin_list_users')
   const users = (data ?? []) as UserRow[]
 
@@ -41,11 +41,11 @@ export default async function AdminUsersPage() {
 
       {error && (
         <div className="msg msg-error">
-          User list nahi aayi: {error.message}
+          Could not load the user list: {error.message}
           <br />
           <span className="adm-sub">
-            Agar likha hai ki function nahi mila, to schema-phase3.sql abhi
-            chalaya nahi gaya hai.
+            If it says the function was not found, schema-phase3.sql has not
+            been run yet.
           </span>
         </div>
       )}
@@ -54,7 +54,7 @@ export default async function AdminUsersPage() {
         <table className="adm-table">
           <thead>
             <tr>
-              <th>Naam</th>
+              <th>Name</th>
               <th>Email</th>
               <th>Phone</th>
               <th>Joined</th>
@@ -86,7 +86,7 @@ export default async function AdminUsersPage() {
             {users.length === 0 && !error && (
               <tr>
                 <td colSpan={6} className="adm-hint">
-                  Abhi koi user nahi.
+                  No users yet.
                 </td>
               </tr>
             )}
@@ -95,9 +95,9 @@ export default async function AdminUsersPage() {
       </div>
 
       <p className="adm-hint">
-        Artisan role khud lag jata hai jab aap Artisans page pe koi application
-        approve karte ho. Yahan se badalna sirf tab zaroori hai jab kuch haath
-        se theek karna ho.
+        The artisan role is set automatically when an application is approved on
+        the Artisans page. Changing it here is only needed to correct something
+        by hand.
       </p>
     </>
   )

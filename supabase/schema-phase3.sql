@@ -1,32 +1,32 @@
 -- ============================================================
 --  EcoWeave — Database Schema (Phase 3: Products + Admin Panel)
 --
---  schema.sql ke BAAD chalana hai. Ek hi baar chalana hai, lekin
---  dobara chal bhi jaye to kuch toota nahi — sab kuch
---  "if not exists" / "on conflict do nothing" hai.
+--  Run after schema.sql. Meant to be run once, but running it again
+--  breaks nothing — every statement is "if not exists" or
+--  "on conflict do nothing".
 --
---  Server pe:
+--  On the server:
 --    sudo docker exec -i supabase-db psql -U postgres -d postgres \
---      < supabase/schema-phase3.sql
+--      -v ON_ERROR_STOP=1 --single-transaction < supabase/schema-phase3.sql
 -- ============================================================
 
 
 -- ------------------------------------------------------------
 --  1. PRODUCTS
 --
---  Ab tak ye lib/products.ts mein hardcoded the. Wahan se yahan
---  laane ka matlab: admin panel se add/edit ho payenge.
+--  These were hardcoded in lib/products.ts until now. Moving them
+--  here is what makes them editable from the admin panel.
 --
---  price_in_paise — paisa HAMESHA integer mein. "₹3,999" jaisi
---  string se total jodna ya tax lagana possible nahi hai, aur
---  floating point mein paisa rakhna to aur bhi bura hai
---  (0.1 + 0.2 kabhi 0.3 nahi hota).
+--  price_in_paise — money is ALWAYS an integer. You cannot add up a
+--  total, apply tax or issue a refund from a string like "₹3,999",
+--  and keeping money in a float is worse still (0.1 + 0.2 never
+--  quite makes 0.3).
 -- ------------------------------------------------------------
 create table if not exists public.products (
   id              uuid primary key default gen_random_uuid(),
 
-  -- URL aur seed dono ke liye. Purane hardcoded ids yahi ban gaye
-  -- hain, taaki koi bhi purana link ya bookmark toote nahi.
+  -- Used by the seed and available for URLs later. The old hardcoded
+  -- ids became these, so no existing link or bookmark breaks.
   slug            text not null unique,
 
   category        text not null check (category in ('rugs', 'shower', 'table')),
@@ -36,11 +36,11 @@ create table if not exists public.products (
   unit            text not null default '',
   icon            text not null default '',
 
-  -- Draft mein rakhne ke liye. Admin product bana kar photo
-  -- upload kare, tab tak customer ko na dikhe.
+  -- For keeping something as a draft: the admin creates the product
+  -- and uploads photos without a customer seeing a half-built page.
   is_published    boolean not null default true,
 
-  -- Shop mein kis order mein dikhe. Chhota number pehle.
+  -- Position in the shop. Lower numbers come first.
   sort_order      integer not null default 0,
 
   created_at      timestamptz not null default now(),
@@ -51,20 +51,19 @@ create table if not exists public.products (
 -- ------------------------------------------------------------
 --  2. PRODUCT IMAGES
 --
---  Ek product ki jitni chahe utni photos. Alag table isliye —
---  products table mein img1, img2, img3... columns banana ek
---  aisi galti hai jiski limit hamesha ek kam padti hai.
+--  As many photos per product as wanted. A separate table because
+--  img1, img2, img3… columns is the kind of mistake whose limit is
+--  always one short of what is needed.
 --
---  `path` do tarah ka ho sakta hai, aur lib/products.ts ka
---  imageUrl() dono sambhalta hai:
+--  `path` comes in two forms, and imageUrl() in lib/products.ts
+--  handles both:
 --
---    "/images/product-rug-sage.jpg"  -> repo ki public/ folder
---                                       (purane 15 products)
---    "abc123/photo.jpg"              -> Supabase Storage bucket
---                                       (admin ke naye uploads)
+--    "/images/product-rug-sage.jpg"  the repo's public/ folder
+--                                    (the original fifteen)
+--    "abc123/photo.jpg"              the Supabase Storage bucket
+--                                    (everything uploaded since)
 --
---  Isi wajah se purani 15 products ko seed karte waqt koi photo
---  upload nahi karni padi.
+--  That is why seeding the original fifteen required no uploads.
 -- ------------------------------------------------------------
 create table if not exists public.product_images (
   id          uuid primary key default gen_random_uuid(),
@@ -72,10 +71,10 @@ create table if not exists public.product_images (
   path        text not null,
   alt         text not null default '',
 
-  -- Sabse chhote sort_order wali photo hi shop ke card pe dikhti
-  -- hai. Alag "is_primary" column nahi rakha — do jagah sach
-  -- rakhne se ek din dono alag ho jate hain, aur phir do photos
-  -- khud ko main batati hain.
+  -- The lowest sort_order is the photo the shop card shows. There is
+  -- deliberately no separate is_primary column: two places holding
+  -- the same truth eventually disagree, and then two photos both
+  -- claim to be the main one.
   sort_order  integer not null default 0,
 
   created_at  timestamptz not null default now()
@@ -89,7 +88,7 @@ create index if not exists idx_product_images_product
 
 
 -- ------------------------------------------------------------
---  3. updated_at apne aap
+--  3. updated_at, kept current automatically
 -- ------------------------------------------------------------
 create or replace function public.touch_updated_at()
 returns trigger
@@ -110,9 +109,9 @@ create trigger products_touch_updated_at
 -- ------------------------------------------------------------
 --  4. ROW LEVEL SECURITY
 --
---  Shop bina login ke khulti hai, isliye published products
---  sabko dikhne chahiye — logged out visitor ko bhi.
---  Draft products sirf admin ko.
+--  The shop is open without logging in, so published products have
+--  to be readable by everyone, signed out included. Drafts by admins
+--  only.
 -- ------------------------------------------------------------
 alter table public.products        enable row level security;
 alter table public.product_images  enable row level security;
@@ -124,9 +123,9 @@ drop policy if exists "public: read published products" on public.products;
 create policy "public: read published products" on public.products
   for select using (is_published or public.is_admin());
 
--- `for all` = insert + update + delete + select, chaaron.
--- with check bhi zaroori hai: uske bina admin ek row insert kar
--- sakta hai aur phir bhi wo policy ke bahar ho sakti hai.
+-- `for all` covers insert, update, delete and select. The with check
+-- matters as much as the using: without it an admin could insert a
+-- row that then falls outside the policy.
 drop policy if exists "admin: write products" on public.products;
 create policy "admin: write products" on public.products
   for all using (public.is_admin()) with check (public.is_admin());
@@ -134,8 +133,8 @@ create policy "admin: write products" on public.products
 
 -- ---- PRODUCT IMAGES ----
 
--- Photo utni hi chhupi rehni chahiye jitna uska product. Warna
--- draft product ki photos ka URL bahar padha ja sakta hai.
+-- A photo must stay exactly as hidden as its product. Otherwise the
+-- URL of a draft product's photo can be read from outside.
 drop policy if exists "public: read images of visible products" on public.product_images;
 create policy "public: read images of visible products" on public.product_images
   for select using (
@@ -151,12 +150,12 @@ create policy "admin: write product images" on public.product_images
 
 
 -- ------------------------------------------------------------
---  5. STORAGE BUCKET (admin ke uploads ke liye)
+--  5. STORAGE BUCKET (for admin uploads)
 --
---  public = true matlab photo ka URL bina login ke khulta hai.
---  Shop ki photos ke liye yahi chahiye. "Public" sirf PADHNE ke
---  liye hai — daalna aur mitana neeche wali policies se bandha
---  hai, aur wo sirf admin ko allow karti hain.
+--  public = true means a photo's URL opens without a login, which is
+--  what a shop needs. "Public" is about READING only — putting files
+--  in and taking them out is governed by the policies below, and
+--  those allow admins and nobody else.
 -- ------------------------------------------------------------
 insert into storage.buckets (id, name, public)
 values ('product-images', 'product-images', true)
@@ -182,13 +181,13 @@ create policy "admin: delete product images" on storage.objects
 -- ------------------------------------------------------------
 --  6. LAST ADMIN PROTECTION
 --
---  schema.sql ka prevent_role_escalation() sirf itna dekhta hai
---  ki badalne wala admin hai ya nahi. Ek admin khud ko customer
---  bana le to wo bhi "admin ne kiya hai" hai — aur agar wo
---  akhri admin tha, to ab koi bhi admin nahi bana sakta, kyunki
---  admin banane ke liye admin hona zaroori hai.
+--  prevent_role_escalation() in schema.sql only asks whether the
+--  person making the change is an admin. An admin turning themselves
+--  into a customer passes that test — and if they were the last
+--  admin, nobody can ever appoint another one, because appointing an
+--  admin requires being one.
 --
---  Ye us akhri darwaze ko band hone se rokta hai.
+--  This stops that last door closing.
 -- ------------------------------------------------------------
 create or replace function public.prevent_last_admin_demotion()
 returns trigger
@@ -200,7 +199,7 @@ begin
   if old.role = 'admin' and new.role is distinct from 'admin' then
     if (select count(*) from public.profiles where role = 'admin') <= 1 then
       raise exception
-        'Ye akhri admin hai. Pehle kisi aur ko admin banao, phir ise badlo.';
+        'This is the only admin left. Make someone else an admin first.';
     end if;
   end if;
   return new;
@@ -216,16 +215,16 @@ create trigger protect_last_admin
 -- ------------------------------------------------------------
 --  7. ADMIN USER LIST
 --
---  Email `auth.users` mein hai, `profiles` mein nahi. `auth` schema
---  API se bahar hai (aur usse bahar hi rehna chahiye), isliye admin
---  panel ko email dikhane ke liye ye function chahiye.
+--  Email lives in auth.users, not in profiles. The auth schema is
+--  not exposed through the API — and should not be — so the admin
+--  panel needs this function to show an address.
 --
---  `security definer` matlab ye function RLS ke bahar chalta hai —
---  yahi iski taakat hai aur yahi iska khatra. Isliye andar `where
---  public.is_admin()` hai: ye nahi hota, to koi bhi logged-in user
---  isko call karke saari email nikaal leta. Function ke bahar policy
---  laga kar nahi roka ja sakta, kyunki definer functions policies
---  ko hi bypass karte hain.
+--  `security definer` means it runs outside RLS. That is both its
+--  purpose and its danger, which is why `where public.is_admin()` is
+--  inside it: without that line any signed-in user could call it and
+--  read every email address on the site. A policy on the outside
+--  cannot help, because definer functions are exactly what bypasses
+--  policies.
 -- ------------------------------------------------------------
 create or replace function public.admin_list_users()
 returns table (
@@ -260,16 +259,17 @@ $$;
 
 
 -- ------------------------------------------------------------
---  8. SEED — abhi wale 15 products
+--  8. SEED — the original fifteen products
 --
---  Ye wahi products hain jo lib/products.ts mein hardcoded the.
---  Inke bina shop DB pe switch karte hi khaali ho jati.
+--  The same products that were hardcoded in lib/products.ts. Without
+--  them the shop would have gone empty the moment it started reading
+--  from the database.
 --
---  slug purani `id` hi rakhi hai, aur photo ka path repo ki
---  public/images/ hi — kuch upload karne ki zaroorat nahi.
+--  The slug is the old `id`, and the photo path is the repo's own
+--  public/images/ — so nothing needed uploading.
 --
---  on conflict do nothing: dobara chala do to duplicate nahi
---  banenge, aur aapke apne edits upar se overwrite nahi honge.
+--  on conflict do nothing: run it twice and no duplicates appear,
+--  and nothing you have edited since gets overwritten.
 -- ------------------------------------------------------------
 with seed(slug, category, name, description, price_in_paise, unit, icon, sort_order, img) as (
   values
@@ -336,7 +336,7 @@ join seed s on s.slug = i.slug;
 
 
 -- ============================================================
---  Chalne ke baad check karo:
+--  Afterwards, check:
 --
 --    select category, count(*) from public.products group by category;
 --      -> rugs 5, shower 5, table 5

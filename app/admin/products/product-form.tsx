@@ -16,7 +16,7 @@ function SubmitButton({ isNew }: { isNew: boolean }) {
   const { pending } = useFormStatus()
   return (
     <button type="submit" className="adm-btn adm-btn-primary" disabled={pending}>
-      {pending ? 'Save ho raha hai…' : isNew ? 'Banao aur photos lagao' : 'Save karo'}
+      {pending ? 'Saving…' : isNew ? 'Create and add photos' : 'Save changes'}
     </button>
   )
 }
@@ -25,8 +25,8 @@ export default function ProductForm({ product }: { product?: Product }) {
   const [state, formAction] = useActionState<AdminState, FormData>(saveProduct, null)
   const isNew = !product
 
-  // Pehle form ke bhare hue values, phir DB ke — taaki validation fail
-  // hone pe jo aapne type kiya tha wo mite nahi.
+  // What was typed comes first, the saved row second, so a failed
+  // validation hands the form back as it was rather than wiping it.
   const v = state?.values
 
   return (
@@ -37,7 +37,7 @@ export default function ProductForm({ product }: { product?: Product }) {
       {product && <input type="hidden" name="id" value={product.id} />}
 
       <div className="field">
-        <label htmlFor="name">Product ka naam</label>
+        <label htmlFor="name">Product name</label>
         <input
           id="name"
           name="name"
@@ -75,7 +75,7 @@ export default function ProductForm({ product }: { product?: Product }) {
             placeholder="3999"
             required
           />
-          <span className="field-hint">Sirf number. Paise ke liye 3999.50</span>
+          <span className="field-hint">Numbers only. Use 3999.50 for paise.</span>
         </div>
       </div>
 
@@ -89,11 +89,14 @@ export default function ProductForm({ product }: { product?: Product }) {
           placeholder="Hand-woven cotton darri… Pit-loom woven by Shakil Ahamad, Panipat."
         />
         <span className="field-hint">
-          Karigar ka naam yahin likhiye — shop ke card pe yahi dikhta hai.
+          Name the artisan here — this is the text shown on the shop card.
         </span>
       </div>
 
-      <div className="field-row">
+      {/* Three across, so this cannot be .field-row, which is a
+          two-column grid and would drop Order onto its own line at
+          half width. */}
+      <div className="adm-row-3">
         <div className="field">
           <label htmlFor="unit">Unit / size</label>
           <input
@@ -113,7 +116,7 @@ export default function ProductForm({ product }: { product?: Product }) {
             placeholder="🏠"
             maxLength={4}
           />
-          <span className="field-hint">Photo load na ho to yahi dikhta hai.</span>
+          <span className="field-hint">Shown if the photo fails to load.</span>
         </div>
 
         <div className="field">
@@ -124,7 +127,7 @@ export default function ProductForm({ product }: { product?: Product }) {
             inputMode="numeric"
             defaultValue={v?.sort_order ?? String(product?.sort_order ?? 0)}
           />
-          <span className="field-hint">Chhota number pehle dikhta hai.</span>
+          <span className="field-hint">Lower numbers come first.</span>
         </div>
       </div>
 
@@ -136,11 +139,11 @@ export default function ProductForm({ product }: { product?: Product }) {
             defaultChecked={product ? product.is_published : false}
           />
           <span>
-            Shop pe dikhao
+            Show on the shop
             <em>
               {isNew
-                ? ' — abhi off rakhna theek hai; photos lagane ke baad on kar dena.'
-                : ' — off karne pe customer ko dikhna band ho jayega.'}
+                ? ' — leave this off for now and turn it on once the photos are up.'
+                : ' — turning this off hides the product from customers.'}
             </em>
           </span>
         </label>

@@ -12,6 +12,10 @@
   --terra:#B85420;
   --terra-p:#F0E6DC;
   --gold:#9A7835;
+  /* Used by .msg-error but never defined until now, so every error
+     message was drawing its left border in the inherited text colour
+     instead of red. */
+  --danger:#B3261E;
   --rule:rgba(28,20,8,.1);
   --rule-s:rgba(28,20,8,.06);
   --h:var(--font-cormorant),'Cormorant Garamond',Georgia,serif;
@@ -866,17 +870,18 @@ footer a:hover{color:rgba(255,255,255,.82)}
 /* ══════════════════════════════════════════════════════════════
    ADMIN PORTAL
 
-   Marketing site ke tokens hi use kiye hain (--sage, --terra,
-   --rule…) taaki ye alag app na lage. Lekin density zyada hai:
-   yahan padha nahi jata, kaam kiya jata hai — isliye chhota
-   type, kam spacing, aur uppercase headings nahi.
+   Built from the marketing site's own tokens (--sage, --terra,
+   --rule…) so it does not read as a different application. The
+   density is higher though: this is a place to get work done
+   rather than to be persuaded, so smaller type and tighter
+   spacing.
 
-   `nc-admin` ke alawa sab kuch .adm- se shuru hota hai, taaki
-   site ki koi bhi class galti se yahan asar na kare.
+   Everything but .nc-admin is namespaced .adm-, so no class from
+   the site can reach in here by accident.
    ══════════════════════════════════════════════════════════════ */
 
-/* Nav ka Admin Portal button — Join/Dashboard se alag rang, taaki
-   turant pata chale ki ye aam link nahi hai. */
+/* A different colour from Join/Dashboard, so it is obvious at a
+   glance that this is not an ordinary visitor link. */
 .nc-admin {
   background: var(--sage);
   margin-right: 0.6rem;
@@ -1220,18 +1225,45 @@ a.adm-strong:hover {
   gap: 0.7rem;
   margin-top: 1.4rem;
 }
+/* Three fields side by side. .field-row is a two-column grid, so a
+   third child drops onto its own line at half width. */
+.adm-row-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1rem;
+}
+@media (max-width: 620px) {
+  .adm-row-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* This checkbox sits inside a .field, which is written for text
+   inputs: it gives every input a border, padding and full width, and
+   uppercases every label. Applied to a checkbox and a sentence, that
+   reads as a strange empty box next to shouting text — so both are
+   undone here rather than the .field wrapper being dropped, which
+   would lose the spacing the rest of the form relies on. */
 .adm-check {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
   font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--ink-mid);
   cursor: pointer;
   line-height: 1.6;
+  margin-bottom: 0;
 }
-.adm-check input {
+.adm-check input[type='checkbox'] {
   width: auto;
-  margin-top: 0.25rem;
+  flex: none;
+  margin-top: 0.2rem;
+  padding: 0;
+  border: none;
+  background: none;
   accent-color: var(--sage);
 }
 .adm-check em {
@@ -1315,8 +1347,9 @@ a.adm-strong:hover {
   padding: 0.5rem 0.6rem;
   border-top: 1px solid var(--rule-s);
 }
-/* Sirf ek photo hone par "Hatao" akela hota hai — use daayen rakhne
-   se bataon ki jagah har card mein badalti thi. */
+/* The main photo has no "Make main" button, so its Remove is alone.
+   Pushed right, it stays where Remove sits on every other card
+   instead of sliding to the left on that one. */
 .adm-photo figcaption form:only-child {
   margin-left: auto;
 }
@@ -1381,6 +1414,14 @@ a.adm-strong:hover {
   gap: 0.6rem;
 }
 
+/* The users table has six columns, one of them a dropdown. Left to
+   itself it pushes past the card on a laptop screen and the last
+   column is simply gone. Scrolling the card is better than columns
+   crushed to the point of being unreadable. */
+.adm-card {
+  overflow-x: auto;
+}
+
 @media (max-width: 760px) {
   .adm-top {
     padding: 0.7rem 1rem;
@@ -1390,11 +1431,6 @@ a.adm-strong:hover {
   }
   .adm-card {
     padding: 1rem;
-  }
-  /* Tables phone pe sikudte nahi — sikudne ki koshish mein columns
-     ek doosre pe chadh jaate hain. Side scroll behtar hai. */
-  .adm-card {
-    overflow-x: auto;
   }
   .adm-table {
     min-width: 560px;

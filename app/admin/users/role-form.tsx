@@ -15,7 +15,7 @@ function SaveButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus()
   return (
     <button type="submit" className="adm-link" disabled={pending || disabled}>
-      {pending ? '…' : 'Badlo'}
+      {pending ? '…' : 'Save'}
     </button>
   )
 }
@@ -45,11 +45,11 @@ export default function RoleForm({
 
       <SaveButton disabled={false} />
 
-      {isSelf && <span className="adm-sub">aap</span>}
+      {isSelf && <span className="adm-sub">you</span>}
 
-      {/* Akhri admin ko hatane wali rok DB mein hai
-          (prevent_last_admin_demotion), isliye uska message yahan
-          seedha dikha dete hain — wahi ek sach hai. */}
+      {/* The rule about the last admin lives in the database
+          (prevent_last_admin_demotion), so its message is shown
+          straight through rather than guessed at again here. */}
       {state?.error && <span className="adm-role-msg adm-err">{state.error}</span>}
       {state?.success && <span className="adm-role-msg adm-ok">{state.success}</span>}
     </form>

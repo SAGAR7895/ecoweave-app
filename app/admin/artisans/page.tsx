@@ -60,7 +60,7 @@ export default async function AdminArtisansPage() {
         </h2>
 
         {pending.length === 0 ? (
-          <p className="adm-hint">Koi application review ke liye baaki nahi hai.</p>
+          <p className="adm-hint">Nothing left to review.</p>
         ) : (
           <div className="adm-apps">
             {pending.map((a) => (
@@ -83,7 +83,11 @@ export default async function AdminArtisansPage() {
                   </div>
                   <div>
                     <dt>Experience</dt>
-                    <dd>{a.experience_years != null ? `${a.experience_years} saal` : '—'}</dd>
+                    <dd>
+                      {a.experience_years != null
+                        ? `${a.experience_years} year${a.experience_years === 1 ? '' : 's'}`
+                        : '—'}
+                    </dd>
                   </div>
                   <div>
                     <dt>Applied</dt>
@@ -94,16 +98,17 @@ export default async function AdminArtisansPage() {
                 {a.message && <p className="adm-app-msg">{a.message}</p>}
 
                 <footer>
-                  {/* Approve karte hi user ka role 'artisan' ho jata hai —
-                      wo schema.sql ke sync_artisan_role() trigger se hota
-                      hai, isliye Users page pe alag se kuch nahi karna. */}
+                  {/* Approving sets the user's role to 'artisan' by
+                      itself — that is sync_artisan_role() in
+                      schema.sql, so there is nothing to do on the
+                      Users page afterwards. */}
                   <form action={reviewApplication}>
                     <input type="hidden" name="application_id" value={a.id} />
                     <input type="hidden" name="status" value="approved" />
                     <ConfirmButton
                       className="adm-btn adm-btn-primary"
-                      message={`${a.full_name} ko artisan partner bana diya jaye?`}
-                      pendingLabel="Ho raha hai…"
+                      message={`Make ${a.full_name} an artisan partner?`}
+                      pendingLabel="Working…"
                     >
                       Approve
                     </ConfirmButton>
@@ -114,8 +119,8 @@ export default async function AdminArtisansPage() {
                     <input type="hidden" name="status" value="rejected" />
                     <ConfirmButton
                       className="adm-btn"
-                      message={`${a.full_name} ki application reject ki jaye?`}
-                      pendingLabel="Ho raha hai…"
+                      message={`Reject ${a.full_name}'s application?`}
+                      pendingLabel="Working…"
                     >
                       Reject
                     </ConfirmButton>
@@ -129,16 +134,16 @@ export default async function AdminArtisansPage() {
 
       <div className="adm-card">
         <h2>
-          Dekhi ja chuki <span className="adm-count">{reviewed.length}</span>
+          Reviewed <span className="adm-count">{reviewed.length}</span>
         </h2>
 
         {reviewed.length === 0 ? (
-          <p className="adm-hint">Abhi tak koi application review nahi hui.</p>
+          <p className="adm-hint">No applications have been reviewed yet.</p>
         ) : (
           <table className="adm-table">
             <thead>
               <tr>
-                <th>Naam</th>
+                <th>Name</th>
                 <th>Cluster</th>
                 <th>Craft</th>
                 <th>Phone</th>

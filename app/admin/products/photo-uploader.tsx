@@ -8,23 +8,24 @@ import { attachImages } from '@/app/admin/actions'
 import { PRODUCT_BUCKET } from '@/lib/products'
 
 /**
- * Photos browser se SEEDHA Supabase Storage pe jati hain, Next.js ke
- * through nahi.
+ * Photos go from the browser STRAIGHT to Supabase Storage, not through
+ * Next.js.
  *
- * Wajah: server action ki body limit 1MB hai. Files ko action se
- * bhejne ka matlab hota us limit ko badhana, nginx ki limit bhi
- * badhana, aur har photo ko do baar network pe bhejna — pehle
- * Next.js tak, phir Next.js se Supabase tak.
+ * A server action's request body is capped at 1MB. Sending files
+ * through one would have meant raising that cap, raising nginx's to
+ * match, and carrying every photo across the network twice — once to
+ * Next.js and again from Next.js to Supabase.
  *
- * Yahan se upload karne ki ijazat DB deta hai, ye component nahi:
- * schema-phase3.sql ki storage policy sirf admin ko is bucket mein
- * likhne deti hai. Ye file sirf UI hai.
+ * What makes this safe is not this file. The storage policy in
+ * schema-phase3.sql only lets an admin write to this bucket; this is
+ * only the interface to it.
  */
 
-// contentType file.type se nahi, is list se liya jata hai. file.type
-// browser ka bataya hua hai aur badla ja sakta hai — aur bucket public
-// hai, matlab jo content-type yahan likha jayega wahi bahar serve hoga.
-// text/html serve hone lagi to ye upload box XSS ka darwaza ban jata.
+// The content type comes from this list, never from file.type. That
+// value is supplied by the browser and can be anything, and the bucket
+// is public — whatever type is recorded on upload is the type served
+// back out. Let text/html through and this box becomes a way to host a
+// script on the site's own API domain.
 const ALLOWED: Record<string, string> = {
   'image/jpeg': 'jpg',
   'image/png': 'png',
@@ -46,16 +47,18 @@ export default function PhotoUploader({ productId }: { productId: string }) {
     setError(null)
     setNote(null)
 
+    // Every file is checked before any of them is sent, so a bad one at
+    // the end of the list does not leave the first few half-uploaded.
     for (const file of files) {
       if (!ALLOWED[file.type]) {
         setError(
-          `"${file.name}" JPG, PNG, WebP ya AVIF nahi hai. Ek bhi photo upload nahi hui.`
+          `"${file.name}" is not a JPG, PNG, WebP or AVIF. Nothing was uploaded.`
         )
         return
       }
       if (file.size > MAX_BYTES) {
         setError(
-          `"${file.name}" ${(file.size / 1024 / 1024).toFixed(1)} MB ki hai — limit 8 MB hai. Ek bhi photo upload nahi hui.`
+          `"${file.name}" is ${(file.size / 1024 / 1024).toFixed(1)} MB — the limit is 8 MB. Nothing was uploaded.`
         )
         return
       }
@@ -67,7 +70,7 @@ export default function PhotoUploader({ productId }: { productId: string }) {
 
     try {
       for (const [i, file] of files.entries()) {
-        setNote(`Upload ho rahi hai ${i + 1}/${files.length} — ${file.name}`)
+        setNote(`Uploading ${i + 1} of ${files.length} — ${file.name}`)
 
         const path = `${productId}/${crypto.randomUUID()}.${ALLOWED[file.type]}`
 
@@ -75,8 +78,8 @@ export default function PhotoUploader({ productId }: { productId: string }) {
           .from(PRODUCT_BUCKET)
           .upload(path, file, {
             contentType: file.type,
-            // Photo ka naam kabhi dobara nahi banega (uuid), isliye ise
-            // hamesha ke liye cache karna safe hai.
+            // The name is a fresh uuid every time and is never reused,
+            // so this can be cached indefinitely.
             cacheControl: '31536000',
             upsert: false,
           })
@@ -85,26 +88,26 @@ export default function PhotoUploader({ productId }: { productId: string }) {
         uploaded.push(path)
       }
 
-      // Sirf paths server ko bhej rahe hain — files nahi.
+      // Only the paths go to the server — the files never touch it.
       const fd = new FormData()
       fd.set('product_id', productId)
       for (const path of uploaded) fd.append('paths', path)
       await attachImages(fd)
 
-      setNote(`${uploaded.length} photo lag gayi.`)
+      setNote(`${uploaded.length} photo${uploaded.length === 1 ? '' : 's'} added.`)
       if (inputRef.current) inputRef.current.value = ''
       router.refresh()
     } catch (e) {
-      // Adhoora upload: kuch files bucket mein chali gayin par DB mein
-      // row nahi bani. Unhe wapas hata do, warna wo bucket mein padi
-      // rahengi jahan koi unhe dekhega bhi nahi.
+      // Some files reached the bucket but no rows were written for them.
+      // Take them back out: left behind, they are invisible to every
+      // screen in this panel and nobody will ever find them again.
       if (uploaded.length > 0) {
         await supabase.storage.from(PRODUCT_BUCKET).remove(uploaded)
       }
       setNote(null)
       setError(
-        (e instanceof Error ? e.message : 'Upload fail ho gaya.') +
-          ' — koi photo save nahi hui. Dobara koshish karo.'
+        (e instanceof Error ? e.message : 'The upload failed.') +
+          ' — no photos were saved. Please try again.'
       )
     } finally {
       setBusy(false)
@@ -114,7 +117,7 @@ export default function PhotoUploader({ productId }: { productId: string }) {
   return (
     <div className="adm-upload">
       <label htmlFor="photos" className="adm-upload-label">
-        Photos jodo
+        Add photos
       </label>
 
       <input
@@ -131,8 +134,8 @@ export default function PhotoUploader({ productId }: { productId: string }) {
       />
 
       <p className="adm-hint">
-        Ek saath jitni chahe utni chun sakte ho. JPG, PNG, WebP ya AVIF —
-        har ek 8 MB tak. Sabse pehli photo hi shop ke card pe dikhti hai.
+        Select as many as you like. JPG, PNG, WebP or AVIF, up to 8 MB each.
+        The first photo is the one shown on the shop card.
       </p>
 
       {busy && <div className="msg msg-info">{note}</div>}

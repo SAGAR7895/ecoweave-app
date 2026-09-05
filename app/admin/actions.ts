@@ -22,33 +22,33 @@ const ROLES = ['customer', 'artisan', 'admin'] as const
 type Role = (typeof ROLES)[number]
 
 /**
- * Har action apne shuru mein requireAdmin() bulata hai.
+ * Every action calls requireAdmin() first.
  *
- * Page pe guard hona kaafi nahi hai: server action ka apna endpoint
- * hota hai, aur uspe request bina aapka UI khole bhi bheji ja sakti
- * hai. Page ka check ye tay karta hai ki kya dikhega; ye check tay
- * karta hai ki kya ho sakta hai.
+ * Guarding the page is not enough: a server action has its own
+ * endpoint, and a request can be sent to it without ever loading the
+ * interface. The page check decides what is shown; this one decides
+ * what can happen.
  */
 
 /** "Darri Geometric — Handloom" -> "darri-geometric-handloom" */
 function slugify(value: string): string {
   return value
     .toLowerCase()
-    // ® aur — jaise characters ko todkar unka base letter nikalta hai,
-    // taaki wo neeche wale filter mein chup-chaap gayab ho jayein.
+    // Decomposes characters like ® and — into a base form, so the
+    // filter below drops them instead of leaving something unexpected.
     .normalize('NFKD')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 60)
 }
 
-/** Sirf hamare bucket ke andar ka path — public/ wale seeded paths nahi. */
+/** Inside our bucket only — not the seeded public/ paths. */
 function isStoragePath(path: string): boolean {
   return Boolean(path) && !path.startsWith('/') && !path.startsWith('http')
 }
 
 // ────────────────────────────────────────────────
-//  PRODUCT — banana aur badalna
+//  PRODUCTS — create and update
 // ────────────────────────────────────────────────
 export async function saveProduct(
   _prev: AdminState,
@@ -77,22 +77,22 @@ export async function saveProduct(
     sort_order: sortRaw,
   }
 
-  if (!name) return { error: 'Product ka naam zaroori hai.', values }
+  if (!name) return { error: 'A product name is required.', values }
   if (!CATEGORIES.includes(category)) {
-    return { error: 'Category chuniye.', values }
+    return { error: 'Please choose a category.', values }
   }
 
   const priceInPaise = parsePriceToPaise(priceRaw)
   if (priceInPaise === null) {
     return {
-      error: 'Price sahi nahi hai. Sirf number likhiye, jaise 3999 ya 3999.50',
+      error: 'That price is not valid. Use numbers only, like 3999 or 3999.50',
       values,
     }
   }
 
   const sortOrder = Number(sortRaw)
   if (!Number.isInteger(sortOrder) || sortOrder < 0) {
-    return { error: 'Order ek poora number hona chahiye (0 ya usse zyada).', values }
+    return { error: 'Order must be a whole number, 0 or above.', values }
   }
 
   const row = {
@@ -112,12 +112,12 @@ export async function saveProduct(
 
     revalidatePath('/')
     revalidatePath('/admin/products')
-    return { success: 'Save ho gaya.' }
+    return { success: 'Saved.' }
   }
 
-  // Naya product. Slug naam se banta hai; ek hi naam ke do product
-  // banane pe pehla try takrayega, isliye dusri baar chhota suffix
-  // laga kar dobara.
+  // New product. The slug comes from the name, so two products named
+  // the same collide on the first attempt — hence the short suffix and
+  // one retry.
   let slug = slugify(name) || 'product'
   let created = await supabase
     .from('products')
@@ -139,14 +139,14 @@ export async function saveProduct(
   revalidatePath('/')
   revalidatePath('/admin/products')
 
-  // Photos product ban jaane ke baad hi lag sakti hain — unhe product
-  // ki id chahiye. Isliye seedha edit page pe bhej rahe hain, jahan
-  // upload box hai.
+  // Photos need the product's id, which only exists once it has been
+  // saved, so this goes straight to the edit page where the upload box
+  // is rather than back to the list.
   redirect(`/admin/products/${created.data.id}?created=1`)
 }
 
 // ────────────────────────────────────────────────
-//  PRODUCT — mitana
+//  PRODUCTS — delete
 // ────────────────────────────────────────────────
 export async function deleteProduct(formData: FormData): Promise<void> {
   await requireAdmin()
@@ -155,9 +155,9 @@ export async function deleteProduct(formData: FormData): Promise<void> {
   const id = String(formData.get('id') ?? '').trim()
   if (!id) return
 
-  // Rows to cascade se apne aap chali jayengi, par Storage ki files
-  // nahi. Unke paths pehle nikal lo, warna delete ke baad pata hi
-  // nahi chalega ki kaun si files anaath ho gayin.
+  // The rows go on their own through the cascade, but the files in
+  // Storage do not. Collect their paths first — afterwards there is
+  // nothing left to say which files were orphaned.
   const { data: images } = await supabase
     .from('product_images')
     .select('path')
@@ -179,14 +179,9 @@ export async function deleteProduct(formData: FormData): Promise<void> {
 // ────────────────────────────────────────────────
 //  PHOTOS
 //
-//  Files browser se seedha Supabase Storage pe jati hain (dekho
-//  app/admin/products/photo-uploader.tsx). Ye action sirf unke paths
-//  DB mein likhta hai.
-//
-//  Aisa isliye: Next.js server action ki body limit 1MB hai, aur
-//  photos usse aaram se badi hoti hain. Files ko Next.js ke through
-//  bhejne ka matlab hota limit badhana, nginx ki limit bhi badhana,
-//  aur har photo ko do baar network pe bhejna.
+//  The files go from the browser straight to Supabase Storage (see
+//  app/admin/products/photo-uploader.tsx). This only records their
+//  paths.
 // ────────────────────────────────────────────────
 export async function attachImages(formData: FormData): Promise<void> {
   await requireAdmin()
@@ -198,9 +193,9 @@ export async function attachImages(formData: FormData): Promise<void> {
 
   if (!productId || paths.length === 0) return
 
-  // Naye photos akhir mein lagte hain, taaki jo abhi main photo hai
-  // wo main hi rahe. Upload karte hi shop ka card badal jana ek
-  // anchaha surprise hota hai.
+  // New photos go on the end, so whichever one is currently the main
+  // photo stays the main photo. Having the shop card change the moment
+  // something is uploaded is a surprise nobody asked for.
   const { data: last } = await supabase
     .from('product_images')
     .select('sort_order')
@@ -243,8 +238,8 @@ export async function deleteImage(formData: FormData): Promise<void> {
   const { error } = await supabase.from('product_images').delete().eq('id', imageId)
   if (error) throw new Error(error.message)
 
-  // Seeded products ki photos repo ki public/ folder mein hain, bucket
-  // mein nahi. Unke liye Storage ko chhedna hi nahi hai.
+  // The seeded products' photos live in the repo's public/ folder, not
+  // in the bucket. Storage is left alone for those.
   if (image && isStoragePath(image.path)) {
     await supabase.storage.from(PRODUCT_BUCKET).remove([image.path])
   }
@@ -253,7 +248,7 @@ export async function deleteImage(formData: FormData): Promise<void> {
   revalidatePath(`/admin/products/${productId}`)
 }
 
-/** Chuni hui photo ko sabse aage le aata hai — wahi shop pe dikhegi. */
+/** Moves the chosen photo to the front — that is the one the shop shows. */
 export async function makePrimaryImage(formData: FormData): Promise<void> {
   await requireAdmin()
   const supabase = await createClient()
@@ -271,9 +266,9 @@ export async function makePrimaryImage(formData: FormData): Promise<void> {
 
   if (!images) return
 
-  // Poori list dobara 0..n-1 mein likhi jati hai, sirf chuni hui ko
-  // -1 dene ke bajaye. Warna baar-baar "make main" dabane se numbers
-  // -1, -2, -3 hote chale jate, aur order ka matlab dhundhla ho jata.
+  // The whole list is rewritten 0..n-1 rather than just giving the
+  // chosen one -1. Otherwise pressing this repeatedly walks the numbers
+  // down to -1, -2, -3 and the order stops meaning anything.
   const ordered = [imageId, ...images.map((i) => i.id).filter((i) => i !== imageId)]
 
   for (const [index, id] of ordered.entries()) {
@@ -285,7 +280,7 @@ export async function makePrimaryImage(formData: FormData): Promise<void> {
 }
 
 // ────────────────────────────────────────────────
-//  USERS — role badalna
+//  USERS — change role
 // ────────────────────────────────────────────────
 export async function setUserRole(
   _prev: AdminState,
@@ -297,8 +292,8 @@ export async function setUserRole(
   const userId = String(formData.get('user_id') ?? '').trim()
   const role = String(formData.get('role') ?? '') as Role
 
-  if (!userId) return { error: 'User nahi mila.' }
-  if (!ROLES.includes(role)) return { error: 'Ye role maujood nahi hai.' }
+  if (!userId) return { error: 'That user could not be found.' }
+  if (!ROLES.includes(role)) return { error: 'That role does not exist.' }
 
   const { error } = await supabase
     .from('profiles')
@@ -306,15 +301,15 @@ export async function setUserRole(
     .eq('id', userId)
 
   if (error) {
-    // schema.sql ka prevent_role_escalation() aur schema-phase3.sql ka
-    // prevent_last_admin_demotion() dono yahan se aate hain. Unka
-    // message pehle se saaf Hinglish mein hai, isliye jaisa hai waisa
-    // hi dikhaya ja raha hai.
+    // Two database triggers can land here: prevent_role_escalation from
+    // schema.sql and prevent_last_admin_demotion from schema-phase3.sql.
+    // Both already raise a plain-English message, so it is shown as-is
+    // rather than replaced with a vaguer one.
     return { error: error.message }
   }
 
   revalidatePath('/admin/users')
-  return { success: 'Role badal diya.' }
+  return { success: 'Role updated.' }
 }
 
 // ────────────────────────────────────────────────
@@ -330,9 +325,9 @@ export async function reviewApplication(formData: FormData): Promise<void> {
   if (!applicationId) return
   if (status !== 'approved' && status !== 'rejected') return
 
-  // Approve karne pe user ka role apne aap 'artisan' ho jata hai aur
-  // reviewed_at bhar jata hai — wo schema.sql ke sync_artisan_role()
-  // trigger ka kaam hai, yahan dobara karne ki zaroorat nahi.
+  // Approving sets the user's role to 'artisan' and fills reviewed_at.
+  // That is sync_artisan_role() in schema.sql doing it, so there is
+  // nothing to repeat here.
   const { error } = await supabase
     .from('artisan_applications')
     .update({ status })

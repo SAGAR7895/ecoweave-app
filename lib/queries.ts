@@ -7,14 +7,14 @@ import {
 } from '@/lib/products'
 
 /**
- * Products DB se padhne ka kaam. Sirf server pe.
+ * Reading products from the database. Server side only.
  *
- * RLS pehle se draft products ko chhupa deta hai, lekin us policy mein
- * `or public.is_admin()` bhi hai — matlab admin ko shop pe apne draft
- * bhi dikhte. Isliye shop wali query mein is_published ka filter alag
- * se lagaya gaya hai: admin ko bhi shop wahi dikhni chahiye jo customer
- * ko dikhti hai, warna "maine to dekha tha, chal raha tha" wali galti
- * hoti hai.
+ * RLS already hides draft products, but that policy also says
+ * `or public.is_admin()` — which would show an admin their own drafts
+ * on the public shop. So the shop query filters on is_published as
+ * well: an admin should see the shop exactly as a customer sees it,
+ * otherwise "but it looked fine when I checked" is how a broken page
+ * reaches everyone else.
  */
 
 const PRODUCT_COLUMNS =
@@ -26,15 +26,14 @@ type ProductRow = Omit<Product, 'images'> & {
 }
 
 /**
- * supabase-js ko is project ke DB ke generated types nahi diye gaye
- * hain, isliye wo nested select ka result `GenericStringError[]` maan
- * leta hai. Isse `as ProductRow[]` seedha nahi chalta — `unknown` se
- * hokar jana padta hai.
+ * supabase-js has not been given this project's generated database
+ * types, so it infers a nested select as `GenericStringError[]`. That
+ * makes `as ProductRow[]` illegal without going through `unknown`.
  *
- * Matlab TypeScript in rows ki jaanch nahi kar raha. Jo shape yahan
- * likhi hai wo PRODUCT_COLUMNS se milni chahiye — ek badalti hai to
- * doosri bhi badalni hai, warna galti build pe nahi, chalte hue page
- * pe dikhegi.
+ * Which means TypeScript is not checking these rows at all. The shape
+ * declared above has to match PRODUCT_COLUMNS by hand — change one and
+ * the other has to change with it, or the mistake shows up on a live
+ * page rather than in the build.
  */
 function rows(data: unknown): ProductRow[] {
   return (data ?? []) as ProductRow[]
@@ -49,7 +48,7 @@ function emptyByCategory(): Record<Category, Product[]> {
   return { rugs: [], shower: [], table: [] }
 }
 
-/** Shop ke liye — sirf published, category ke hisaab se baante hue. */
+/** For the shop — published only, grouped by category. */
 export async function getShopProducts(): Promise<Record<Category, Product[]>> {
   const supabase = await createClient()
 
@@ -64,9 +63,10 @@ export async function getShopProducts(): Promise<Record<Category, Product[]>> {
   const byCategory = emptyByCategory()
 
   if (error) {
-    // Shop ka poora page girane se behtar hai khaali collection
-    // dikhana. Ye tabhi hoga jab DB hi na mile, aur us waqt banner
-    // dikhane layak koi aur cheez bhi kaam nahi kar rahi hogi.
+    // An empty collection is better than taking the whole page down.
+    // This only happens if the database is unreachable, and at that
+    // point nothing else is working well enough to show a banner about
+    // it either.
     console.error('[queries] getShopProducts failed:', error.message)
     return byCategory
   }
@@ -81,7 +81,7 @@ export async function getShopProducts(): Promise<Record<Category, Product[]>> {
   return byCategory
 }
 
-/** Admin list — draft bhi, sab kuch. */
+/** The admin list — drafts included, everything. */
 export async function getAllProducts(): Promise<Product[]> {
   const supabase = await createClient()
 
@@ -98,7 +98,7 @@ export async function getAllProducts(): Promise<Product[]> {
   return rows(data).map(toProduct)
 }
 
-/** Admin edit page — ek product, uski saari photos ke saath. */
+/** The admin edit page — one product with all of its photos. */
 export async function getProduct(id: string): Promise<Product | null> {
   const supabase = await createClient()
 

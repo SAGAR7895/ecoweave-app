@@ -2,13 +2,13 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 
 /**
- * Admin hone ki jaanch — ek hi jagah.
+ * The admin check, in one place.
  *
- * Ye sirf UI ke liye hai. Asli rok DB mein hai: RLS policies aur
- * is_admin() ke bina in pages se kuch bhi karna waise bhi fail hoga.
- * Do jagah check hone ka matlab ye nahi ki ek jagah dhili chhod di
- * jaye — matlab ye hai ki admin ke alawa kisi ko ye page dikhega hi
- * nahi, aur agar koi seedha URL kholega to DB use rokega.
+ * This is for the interface only. The real barrier is in the database:
+ * without the RLS policies and is_admin(), nothing these pages do would
+ * succeed anyway. Having it in both places is not an excuse to be loose
+ * in either — it means nobody but an admin is shown the door, and
+ * anyone who types the URL directly is stopped by the database.
  */
 
 export type AdminUser = {
@@ -18,11 +18,12 @@ export type AdminUser = {
 }
 
 /**
- * Har admin page ke shuru mein. Admin nahi ho to yahin se bahar.
+ * Called at the top of every admin page. Anyone who is not an admin
+ * leaves here.
  *
- * getUser() hi use kiya hai, getSession() nahi: session cookie se
- * padha jata hai aur cookie client ke paas hai, isliye uspe bharosa
- * nahi kiya ja sakta. getUser() har baar Supabase se poochta hai.
+ * getUser() rather than getSession(): the session is read from a
+ * cookie, the cookie belongs to the client, and so it cannot be
+ * trusted. getUser() asks Supabase every time.
  */
 export async function requireAdmin(): Promise<AdminUser> {
   const supabase = await createClient()
@@ -39,9 +40,9 @@ export async function requireAdmin(): Promise<AdminUser> {
     .eq('id', user.id)
     .single()
 
-  // Login to hai, par admin nahi — apne dashboard pe wapas. Yahan
-  // 403 page dikhane ka koi fayda nahi; unke liye /admin ka wajood
-  // hi nahi hona chahiye.
+  // Signed in, but not an admin — back to their own dashboard. There is
+  // nothing to gain from showing them a 403 page; as far as they are
+  // concerned /admin should not exist.
   if (profile?.role !== 'admin') redirect('/dashboard')
 
   return {
@@ -52,8 +53,8 @@ export async function requireAdmin(): Promise<AdminUser> {
 }
 
 /**
- * Sirf ye jaanne ke liye ki nav mein "Admin Portal" ka button
- * dikhana hai ya nahi. Redirect nahi karta.
+ * Only answers whether to draw the "Admin Portal" button in the nav.
+ * Redirects nobody.
  */
 export async function getViewer(): Promise<{
   isLoggedIn: boolean

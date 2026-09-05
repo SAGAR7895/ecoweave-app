@@ -52,9 +52,9 @@ export default function SiteNav({
       </ul>
 
       <div className="nav-right">
-        {/* Sirf admin ko. Ye chhupana suraksha nahi hai — asli rok
-            /admin ke layout mein aur DB ki RLS policies mein hai.
-            Ye bas isliye hai ki baaki sabko wo darwaza dikhe hi na. */}
+        {/* Admins only. Hiding this is not the protection — that is in
+            the /admin layout and in the database's RLS policies. This
+            just keeps the door out of everyone else's way. */}
         {isAdmin && (
           <Link href="/admin" className="nc nc-admin" onClick={close}>
             Admin Portal
