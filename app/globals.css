@@ -893,28 +893,41 @@ footer a:hover{color:rgba(255,255,255,.82)}
 .adm {
   min-height: 100vh;
   background: var(--cream);
+  display: grid;
+  /* minmax(0,1fr) rather than 1fr: a wide table inside the content
+     column would otherwise stretch the grid and push the sidebar off
+     the screen instead of scrolling inside its own card. */
+  grid-template-columns: 232px minmax(0, 1fr);
 }
 
-/* ── top bar ── */
-.adm-top {
+/* ── sidebar ── */
+.adm-side {
   position: sticky;
   top: 0;
-  z-index: 50;
+  height: 100vh;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.5rem;
-  flex-wrap: wrap;
-  padding: 0.7rem 2rem;
-  background: rgba(250, 248, 243, 0.97);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--rule);
+  flex-direction: column;
+  gap: 1.6rem;
+  padding: 1.5rem 1.1rem;
+  background: var(--paper);
+  border-right: 1px solid var(--rule);
 }
-.adm-top-left,
-.adm-top-right {
+.adm-side-head {
   display: flex;
-  align-items: center;
-  gap: 0.9rem;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+/* Pushed to the bottom of the column, away from the navigation, so
+   Log out is never next to something you meant to click. */
+.adm-side-foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule-s);
 }
 .adm-logo {
   font-family: var(--h);
@@ -948,7 +961,8 @@ footer a:hover{color:rgba(255,255,255,.82)}
 
 .adm-tabs {
   display: flex;
-  gap: 0.3rem;
+  flex-direction: column;
+  gap: 0.15rem;
 }
 .adm-tab {
   font-size: 0.68rem;
@@ -957,21 +971,23 @@ footer a:hover{color:rgba(255,255,255,.82)}
   text-transform: uppercase;
   color: var(--ink-light);
   text-decoration: none;
-  padding: 0.45rem 0.9rem;
-  border-bottom: 2px solid transparent;
-  transition: color 0.2s, border-color 0.2s;
+  padding: 0.6rem 0.8rem;
+  border-left: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
 }
 .adm-tab:hover {
   color: var(--ink);
+  background: var(--cream);
 }
 .adm-tab.active {
   color: var(--sage);
-  border-bottom-color: var(--sage);
+  border-left-color: var(--sage);
+  background: var(--sage-p);
 }
 
 .adm-main {
   max-width: 1100px;
-  margin: 0 auto;
+  width: 100%;
   padding: 2rem 2rem 5rem;
 }
 
@@ -1422,10 +1438,51 @@ a.adm-strong:hover {
   overflow-x: auto;
 }
 
-@media (max-width: 760px) {
-  .adm-top {
-    padding: 0.7rem 1rem;
+/* A 232px column is most of a phone screen, so below this the sidebar
+   lies down and becomes a strip across the top. */
+@media (max-width: 860px) {
+  .adm {
+    grid-template-columns: minmax(0, 1fr);
   }
+  .adm-side {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    padding: 0.8rem 1rem;
+    border-right: none;
+    border-bottom: 1px solid var(--rule);
+  }
+  .adm-side-head {
+    flex-direction: row;
+    align-items: center;
+  }
+  .adm-tabs {
+    flex-direction: row;
+  }
+  .adm-tab {
+    padding: 0.45rem 0.7rem;
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+  .adm-tab.active {
+    border-left: none;
+    border-bottom-color: var(--sage);
+    background: none;
+  }
+  .adm-side-foot {
+    margin-top: 0;
+    margin-left: auto;
+    flex-direction: row;
+    align-items: center;
+    padding-top: 0;
+    border-top: none;
+  }
+}
+
+@media (max-width: 760px) {
   .adm-main {
     padding: 1.2rem 1rem 4rem;
   }

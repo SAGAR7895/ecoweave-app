@@ -26,8 +26,8 @@ export default async function AdminLayout({
 
   return (
     <div className="adm">
-      <header className="adm-top">
-        <div className="adm-top-left">
+      <aside className="adm-side">
+        <div className="adm-side-head">
           <Link href="/" className="adm-logo">
             Eco<em>Weave</em>
             <sup>®</sup>
@@ -37,7 +37,7 @@ export default async function AdminLayout({
 
         <AdminNav />
 
-        <div className="adm-top-right">
+        <div className="adm-side-foot">
           <span className="adm-who">{admin.fullName || admin.email}</span>
           <Link href="/" className="adm-link">
             View site ↗
@@ -48,7 +48,7 @@ export default async function AdminLayout({
             </button>
           </form>
         </div>
-      </header>
+      </aside>
 
       <main className="adm-main">{children}</main>
     </div>

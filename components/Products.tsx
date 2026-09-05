@@ -98,7 +98,17 @@ export default function Products({
                       inset: 0,
                     }}
                   />
-                  <div className="pph" style={{ display: 'flex' }}>
+                  {/* Hidden until the photo actually fails. SafeImg looks
+                      for a next sibling whose inline display is 'none'
+                      and flips it to 'flex' — that is the contract every
+                      other fallback on the site follows.
+
+                      This one said 'flex', so it was never hidden. Both
+                      it and the <img> are position:absolute with no
+                      z-index, and it comes second in the DOM, so an
+                      opaque sand-coloured box sat on top of every
+                      product photo and the fallback logic never ran. */}
+                  <div className="pph" style={{ display: 'none' }}>
                     <span className="pph-icon">{p.icon}</span>
                   </div>
                   <span className="eco-badge">CiCLO®</span>
