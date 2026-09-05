@@ -959,6 +959,37 @@ footer a:hover{color:rgba(255,255,255,.82)}
   color: var(--ink-mid);
 }
 
+/* This file styles the bare `nav` element as the site's fixed header —
+   position:fixed, top:0, full width, z-index 999, its own padding and
+   background. That rule matches this <nav> just as happily, which is
+   why the admin links were floating across the top of the page instead
+   of sitting in the sidebar. The bare `footer` rule does the same to
+   the artisan cards' button row, painting it dark with 4rem of padding.
+   `.adm nav` outranks `nav`, so resetting here is enough.
+
+   Reset rather than renamed: <nav> and <footer> are the correct tags
+   for what they hold, and whoever adds the next one in here should not
+   have to rediscover this the hard way. */
+.adm nav {
+  position: static;
+  width: auto;
+  z-index: auto;
+  padding: 0;
+  background: none;
+  backdrop-filter: none;
+  border-bottom: none;
+  justify-content: flex-start;
+}
+.adm footer {
+  background: none;
+  padding: 0;
+}
+.adm footer a {
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+}
+
 .adm-tabs {
   display: flex;
   flex-direction: column;
@@ -1009,6 +1040,9 @@ footer a:hover{color:rgba(255,255,255,.82)}
   font-family: var(--b);
   font-size: 0.7rem;
   font-weight: 500;
+  /* The global h2 sets 1.06, which is meant for display headings three
+     times this size and crowds these when they wrap. */
+  line-height: 1.5;
   letter-spacing: 0.11em;
   text-transform: uppercase;
   color: var(--ink-light);
@@ -1260,7 +1294,11 @@ a.adm-strong:hover {
    reads as a strange empty box next to shouting text — so both are
    undone here rather than the .field wrapper being dropped, which
    would lose the spacing the rest of the form relies on. */
-.adm-check {
+/* `.field label.adm-check`, not `.adm-check`: the rule being undone is
+   `.field label`, which at (0,1,1) outranks a lone class. The first
+   attempt at this used `.adm-check` and lost silently — the label kept
+   its uppercase and its letter-spacing. */
+.field label.adm-check {
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
