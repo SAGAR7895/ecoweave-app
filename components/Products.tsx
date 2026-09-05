@@ -3,15 +3,25 @@
 import { useState } from 'react'
 import SafeImg from '@/components/SafeImg'
 import {
-  PRODUCTS,
+  CATEGORIES,
   CATEGORY_LABELS,
   formatPrice,
+  imageUrl,
+  primaryImage,
   type Category,
+  type Product,
 } from '@/lib/products'
 
-const CATEGORIES = Object.keys(CATEGORY_LABELS) as Category[]
-
-export default function Products() {
+/**
+ * Products ab DB se aate hain (dekho lib/queries.ts). Ye component
+ * client hai — tabs aur wishlist ke liye — isliye data upar se prop
+ * mein aata hai, yahan fetch nahi hota.
+ */
+export default function Products({
+  products,
+}: {
+  products: Record<Category, Product[]>
+}) {
   const [active, setActive] = useState<Category>('rugs')
   const [wishlist, setWishlist] = useState<Set<string>>(new Set())
   const [toast, setToast] = useState<string | null>(null)
@@ -73,12 +83,12 @@ export default function Products() {
       {CATEGORIES.map((cat) => (
         <div key={cat} className={`pcat${active === cat ? ' vis' : ''}`}>
           <div className="pgrid pgrid-5">
-            {PRODUCTS[cat].map((p) => (
+            {products[cat].map((p) => (
               <div className="pc" key={p.id}>
                 <div className="piw">
                   <SafeImg
-                    src={p.img}
-                    alt={p.name}
+                    src={imageUrl(primaryImage(p)?.path ?? '')}
+                    alt={primaryImage(p)?.alt || p.name}
                     loading="lazy"
                     style={{
                       width: '100%',
@@ -108,9 +118,9 @@ export default function Products() {
                 </div>
                 <div className="pb2">
                   <div className="pn">{p.name}</div>
-                  <div className="pd">{p.desc}</div>
+                  <div className="pd">{p.description}</div>
                   <div className="pf">
-                    <span className="pp">{formatPrice(p.priceInPaise)}</span>
+                    <span className="pp">{formatPrice(p.price_in_paise)}</span>
                     <span className="ptg">{p.unit}</span>
                     <button
                       type="button"

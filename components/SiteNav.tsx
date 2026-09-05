@@ -15,7 +15,13 @@ const LINKS = [
   ['#jiwarajka', 'Jiwarajka'],
 ] as const
 
-export default function SiteNav({ isLoggedIn }: { isLoggedIn: boolean }) {
+export default function SiteNav({
+  isLoggedIn,
+  isAdmin = false,
+}: {
+  isLoggedIn: boolean
+  isAdmin?: boolean
+}) {
   const [open, setOpen] = useState(false)
   const close = () => setOpen(false)
 
@@ -46,6 +52,15 @@ export default function SiteNav({ isLoggedIn }: { isLoggedIn: boolean }) {
       </ul>
 
       <div className="nav-right">
+        {/* Sirf admin ko. Ye chhupana suraksha nahi hai — asli rok
+            /admin ke layout mein aur DB ki RLS policies mein hai.
+            Ye bas isliye hai ki baaki sabko wo darwaza dikhe hi na. */}
+        {isAdmin && (
+          <Link href="/admin" className="nc nc-admin" onClick={close}>
+            Admin Portal
+          </Link>
+        )}
+
         <Link href={isLoggedIn ? '/dashboard' : '/join'} className="nc">
           {isLoggedIn ? 'Dashboard' : 'Join Platform'}
         </Link>

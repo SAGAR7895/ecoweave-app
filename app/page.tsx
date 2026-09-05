@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+import { getViewer } from '@/lib/admin'
+import { getShopProducts } from '@/lib/queries'
 
 import SiteNav from '@/components/SiteNav'
 import SiteFooter from '@/components/SiteFooter'
@@ -19,22 +20,20 @@ import Founder from '@/components/marketing/Founder'
 import CallToAction from '@/components/marketing/CallToAction'
 
 export default async function Home() {
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  const isLoggedIn = Boolean(user)
+  const [{ isLoggedIn, isAdmin }, products] = await Promise.all([
+    getViewer(),
+    getShopProducts(),
+  ])
 
   return (
     <>
-      <SiteNav isLoggedIn={isLoggedIn} />
+      <SiteNav isLoggedIn={isLoggedIn} isAdmin={isAdmin} />
       <Hero />
       <Ticker />
       <Crisis />
       <Solution />
       <CicloPanels />
-      <Products />
+      <Products products={products} />
       <Jiwarajka />
       <Platform />
       <Impact />

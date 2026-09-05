@@ -862,3 +862,541 @@ footer a:hover{color:rgba(255,255,255,.82)}
     grid-template-columns: 1fr;
   }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   ADMIN PORTAL
+
+   Marketing site ke tokens hi use kiye hain (--sage, --terra,
+   --rule…) taaki ye alag app na lage. Lekin density zyada hai:
+   yahan padha nahi jata, kaam kiya jata hai — isliye chhota
+   type, kam spacing, aur uppercase headings nahi.
+
+   `nc-admin` ke alawa sab kuch .adm- se shuru hota hai, taaki
+   site ki koi bhi class galti se yahan asar na kare.
+   ══════════════════════════════════════════════════════════════ */
+
+/* Nav ka Admin Portal button — Join/Dashboard se alag rang, taaki
+   turant pata chale ki ye aam link nahi hai. */
+.nc-admin {
+  background: var(--sage);
+  margin-right: 0.6rem;
+}
+.nc-admin:hover {
+  background: var(--ink);
+}
+
+.adm {
+  min-height: 100vh;
+  background: var(--cream);
+}
+
+/* ── top bar ── */
+.adm-top {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  padding: 0.7rem 2rem;
+  background: rgba(250, 248, 243, 0.97);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--rule);
+}
+.adm-top-left,
+.adm-top-right {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+.adm-logo {
+  font-family: var(--h);
+  font-size: 1.35rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.adm-logo em {
+  font-style: italic;
+  color: var(--sage);
+}
+.adm-logo sup {
+  font-size: 0.4rem;
+  vertical-align: super;
+  color: var(--terra);
+  font-style: normal;
+}
+.adm-badge {
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sage);
+  border: 1px solid rgba(58, 95, 69, 0.28);
+  padding: 0.2rem 0.55rem;
+}
+.adm-who {
+  font-size: 0.72rem;
+  color: var(--ink-mid);
+}
+
+.adm-tabs {
+  display: flex;
+  gap: 0.3rem;
+}
+.adm-tab {
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  text-decoration: none;
+  padding: 0.45rem 0.9rem;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+.adm-tab:hover {
+  color: var(--ink);
+}
+.adm-tab.active {
+  color: var(--sage);
+  border-bottom-color: var(--sage);
+}
+
+.adm-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem 2rem 5rem;
+}
+
+/* ── headings ── */
+.adm-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.adm-head h1 {
+  font-family: var(--h);
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--ink);
+}
+.adm-card h2 {
+  font-family: var(--b);
+  font-size: 0.7rem;
+  font-weight: 500;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 1rem;
+}
+.adm-count {
+  display: inline-block;
+  margin-left: 0.4rem;
+  font-size: 0.66rem;
+  color: var(--ink-light);
+  background: var(--sand);
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  letter-spacing: 0;
+}
+
+.adm-card {
+  background: #fff;
+  border: 1px solid var(--rule);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.adm-card-danger {
+  border-color: rgba(184, 84, 32, 0.3);
+}
+
+.adm-hint {
+  font-size: 0.75rem;
+  color: var(--ink-light);
+  line-height: 1.7;
+  font-weight: 300;
+}
+.adm-sub {
+  font-size: 0.7rem;
+  color: var(--ink-light);
+}
+.adm-strong {
+  font-weight: 500;
+  color: var(--ink);
+  text-decoration: none;
+}
+a.adm-strong:hover {
+  color: var(--sage);
+}
+
+/* ── stats ── */
+.adm-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.adm-stat {
+  background: #fff;
+  border: 1px solid var(--rule);
+  padding: 1.2rem;
+  text-decoration: none;
+  transition: border-color 0.2s;
+}
+.adm-stat:hover {
+  border-color: var(--sage);
+}
+.adm-stat-n {
+  display: block;
+  font-family: var(--h);
+  font-size: 2.2rem;
+  font-weight: 300;
+  color: var(--sage);
+  line-height: 1;
+}
+.adm-stat-l {
+  display: block;
+  margin-top: 0.35rem;
+  font-size: 0.68rem;
+  color: var(--ink-light);
+  letter-spacing: 0.05em;
+}
+
+/* ── tables ── */
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.adm-table th {
+  text-align: left;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  padding: 0 0.6rem 0.6rem;
+  border-bottom: 1px solid var(--rule);
+}
+.adm-table td {
+  padding: 0.7rem 0.6rem;
+  border-bottom: 1px solid var(--rule-s);
+  vertical-align: middle;
+  color: var(--ink-mid);
+}
+.adm-table tr:last-child td {
+  border-bottom: none;
+}
+.adm-num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.adm-thumb {
+  width: 48px;
+  height: 48px;
+  background: var(--sand);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.adm-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.adm-thumb-empty {
+  font-size: 1.1rem;
+  opacity: 0.5;
+}
+
+.adm-pill {
+  display: inline-block;
+  font-size: 0.6rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  margin-left: 0.3rem;
+}
+.adm-pill-ok {
+  background: var(--sage-p);
+  color: var(--sage);
+}
+.adm-pill-warn {
+  background: var(--terra-p);
+  color: var(--terra);
+}
+.adm-pill-mute {
+  background: var(--sand);
+  color: var(--ink-light);
+}
+
+/* ── buttons & links ── */
+.adm-btn {
+  display: inline-block;
+  font-family: var(--b);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 0.62rem 1.3rem;
+  border: 1px solid var(--rule);
+  background: #fff;
+  color: var(--ink-mid);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.adm-btn:hover {
+  border-color: var(--ink-mid);
+  color: var(--ink);
+}
+.adm-btn-primary {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: #fff;
+}
+.adm-btn-primary:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.adm-btn-danger {
+  background: var(--terra);
+  border-color: var(--terra);
+  color: #fff;
+}
+.adm-btn-danger:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.adm-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.adm-link {
+  font-size: 0.72rem;
+  color: var(--sage);
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--b);
+}
+.adm-link:hover {
+  text-decoration: underline;
+}
+.adm-link-btn {
+  color: var(--ink-light);
+}
+.adm-link-danger {
+  color: var(--terra);
+}
+.adm-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+/* ── forms ── */
+.adm-form {
+  max-width: 640px;
+}
+.adm-form .field {
+  margin-bottom: 1rem;
+}
+.adm-form-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-top: 1.4rem;
+}
+.adm-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.8rem;
+  color: var(--ink-mid);
+  cursor: pointer;
+  line-height: 1.6;
+}
+.adm-check input {
+  width: auto;
+  margin-top: 0.25rem;
+  accent-color: var(--sage);
+}
+.adm-check em {
+  font-style: normal;
+  color: var(--ink-light);
+  font-size: 0.75rem;
+}
+
+.adm-role {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.adm-role select {
+  font-family: var(--b);
+  font-size: 0.75rem;
+  color: var(--ink);
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--rule);
+  background: #fff;
+}
+.adm-role-msg {
+  flex-basis: 100%;
+  font-size: 0.68rem;
+  line-height: 1.5;
+}
+.adm-err {
+  color: var(--terra);
+}
+.adm-ok {
+  color: var(--sage);
+}
+
+/* ── photo upload ── */
+.adm-upload {
+  padding: 1.1rem;
+  border: 1px dashed var(--rule);
+  background: var(--paper);
+  margin-bottom: 1.3rem;
+}
+.adm-upload-label {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-mid);
+  margin-bottom: 0.55rem;
+}
+.adm-upload input[type='file'] {
+  font-family: var(--b);
+  font-size: 0.78rem;
+  color: var(--ink-mid);
+}
+.adm-upload .msg {
+  margin-top: 0.8rem;
+  margin-bottom: 0;
+}
+
+.adm-photos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 1rem;
+}
+.adm-photo {
+  position: relative;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+}
+.adm-photo img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+.adm-photo figcaption {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  border-top: 1px solid var(--rule-s);
+}
+/* Sirf ek photo hone par "Hatao" akela hota hai — use daayen rakhne
+   se bataon ki jagah har card mein badalti thi. */
+.adm-photo figcaption form:only-child {
+  margin-left: auto;
+}
+.adm-photo-main {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  background: var(--sage);
+  color: #fff;
+  padding: 0.18rem 0.5rem;
+}
+
+/* ── artisan applications ── */
+.adm-apps {
+  display: grid;
+  gap: 1rem;
+}
+.adm-app {
+  border: 1px solid var(--rule);
+  padding: 1.1rem;
+  background: var(--paper);
+}
+.adm-app header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.8rem;
+}
+.adm-app-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 0.8rem;
+  margin-bottom: 0.8rem;
+}
+.adm-app-facts dt {
+  font-size: 0.6rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+  margin-bottom: 0.2rem;
+}
+.adm-app-facts dd {
+  font-size: 0.82rem;
+  color: var(--ink);
+}
+.adm-app-msg {
+  font-size: 0.82rem;
+  line-height: 1.7;
+  color: var(--ink-mid);
+  font-weight: 300;
+  padding: 0.7rem 0.9rem;
+  background: #fff;
+  border-left: 2px solid var(--sage-l);
+  margin-bottom: 0.9rem;
+}
+.adm-app footer {
+  display: flex;
+  gap: 0.6rem;
+}
+
+@media (max-width: 760px) {
+  .adm-top {
+    padding: 0.7rem 1rem;
+  }
+  .adm-main {
+    padding: 1.2rem 1rem 4rem;
+  }
+  .adm-card {
+    padding: 1rem;
+  }
+  /* Tables phone pe sikudte nahi — sikudne ki koshish mein columns
+     ek doosre pe chadh jaate hain. Side scroll behtar hai. */
+  .adm-card {
+    overflow-x: auto;
+  }
+  .adm-table {
+    min-width: 560px;
+  }
+}

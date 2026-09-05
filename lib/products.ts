@@ -1,24 +1,19 @@
 /**
- * Products — abhi ke liye yahin hardcoded hain, bilkul purani site ki tarah.
+ * Products ke shared types aur helpers.
  *
- * Phase 3 mein ye Supabase `products` table se aayenge aur admin panel se
- * add/edit honge. Isliye abhi se `id` aur `priceInPaise` rakh diye hain:
+ * Products ab Supabase ke `products` table mein hain, admin panel se
+ * add/edit hote hain. Pehle ye file khud hi 15 products ka hardcoded
+ * list thi — wo list ab supabase/schema-phase3.sql ke seed mein hai.
  *
- *   - `id`   : cart aur orders ko product se jodne ke liye zaroori hai
- *   - paise  : paisa hamesha integer mein store karo. "₹3,999" string se
- *              total jodna, tax lagana, ya refund karna possible nahi hai.
+ * Yahan sirf wo cheezein hain jo client aur server dono ko chahiye,
+ * isliye is file mein koi server-only import nahi aana chahiye —
+ * warna 'use client' components build hote waqt toot jayenge.
+ * DB se padhne ka kaam lib/queries.ts mein hai.
  */
+
 export type Category = 'rugs' | 'shower' | 'table'
 
-export type Product = {
-  id: string
-  name: string
-  desc: string
-  priceInPaise: number
-  unit: string
-  img: string
-  icon: string
-}
+export const CATEGORIES: Category[] = ['rugs', 'shower', 'table']
 
 export const CATEGORY_LABELS: Record<Category, string> = {
   rugs: 'Handmade Handloom Rugs',
@@ -26,151 +21,82 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   table: 'Table Linen',
 }
 
+/** Admin ke uploads ka Supabase Storage bucket. */
+export const PRODUCT_BUCKET = 'product-images'
+
+export type ProductImage = {
+  id: string
+  path: string
+  alt: string
+  sort_order: number
+}
+
+export type Product = {
+  id: string
+  slug: string
+  category: Category
+  name: string
+  description: string
+  price_in_paise: number
+  unit: string
+  icon: string
+  is_published: boolean
+  sort_order: number
+  images: ProductImage[]
+}
+
 /** 399900 -> "₹3,999" */
 export function formatPrice(paise: number): string {
   return '₹' + (paise / 100).toLocaleString('en-IN')
 }
 
-export const PRODUCTS: Record<Category, Product[]> = {
-  rugs: [
-    {
-      id: 'rug-darri-geometric',
-      name: 'Darri Geometric — Handloom',
-      desc: 'Hand-woven cotton darri in geometric pattern. Pit-loom woven by Shakil Ahamad, Panipat.',
-      priceInPaise: 399900,
-      unit: '4×6 ft',
-      img: '/images/product-rug-darri-geometric.jpg',
-      icon: '🏠',
-    },
-    {
-      id: 'rug-durrie-natural-stripe',
-      name: 'Durrie Natural Stripe',
-      desc: 'Flat-weave durrie in natural undyed cotton. Woven by Mohammed Iqbal, Panipat cluster.',
-      priceInPaise: 279900,
-      unit: '3×5 ft',
-      img: '/images/product-rug-durrie-natural.jpg',
-      icon: '🏠',
-    },
-    {
-      id: 'rug-block-print-indigo',
-      name: 'Block Print Handloom — Indigo',
-      desc: 'Handloom base with Sanganer indigo block print border. Jahangir Alam & Tauhid Alam collaboration.',
-      priceInPaise: 449900,
-      unit: '4×6 ft',
-      img: '/images/product-rug-indigo.jpg',
-      icon: '🏠',
-    },
-    {
-      id: 'rug-carpet-terracotta',
-      name: 'Carpet Weave — Terracotta',
-      desc: 'Hand-knotted carpet weave in warm terracotta tones. Md Munna Mustak, Panipat — 20 years of craft.',
-      priceInPaise: 599900,
-      unit: '4×6 ft',
-      img: '/images/product-rug-terracotta.jpg',
-      icon: '🏠',
-    },
-    {
-      id: 'rug-handloom-sage',
-      name: 'Handloom Solid — Sage',
-      desc: 'Dense handloom flat-weave in muted sage. Woven by Prem Chand, Rajiv Colony, Panipat.',
-      priceInPaise: 329900,
-      unit: '3×5 ft',
-      img: '/images/product-rug-sage.jpg',
-      icon: '🏠',
-    },
-  ],
-  shower: [
-    {
-      id: 'shower-botanical-block',
-      name: 'Botanical Block Print',
-      desc: 'Sanganer block-print botanical motifs on CiCLO® base. Tauhid Alam, Sanganer Jaipur.',
-      priceInPaise: 229900,
-      unit: 'Single',
-      img: '/images/product-shower-botanical.jpg',
-      icon: '🚿',
-    },
-    {
-      id: 'shower-indigo-stripe',
-      name: 'Indigo Stripe — Handloom',
-      desc: 'Crisp woven indigo & white stripes. Quick-dry CiCLO® polyester. Panipat woven.',
-      priceInPaise: 189900,
-      unit: 'Single',
-      img: '/images/product-shower-indigo-stripe.jpg',
-      icon: '🚿',
-    },
-    {
-      id: 'shower-natural-waffle',
-      name: 'Natural Waffle Weave',
-      desc: 'Classic waffle texture in natural ivory. Water-resistant CiCLO® polyester weave.',
-      priceInPaise: 169900,
-      unit: 'Single',
-      img: '/images/product-shower-waffle.jpg',
-      icon: '🚿',
-    },
-    {
-      id: 'shower-jaipur-floral',
-      name: 'Jaipur Floral Print',
-      desc: 'Traditional Jaipur floral block-print in fuchsia & sage. Sunita Devi, Sanganer.',
-      priceInPaise: 269900,
-      unit: 'Single',
-      img: '/images/product-shower-jaipur-floral.jpg',
-      icon: '🚿',
-    },
-    {
-      id: 'shower-geometric-mosaic',
-      name: 'Geometric Mosaic',
-      desc: 'Bold geometric tile-print in earthy terracotta tones. CiCLO® certified throughout.',
-      priceInPaise: 209900,
-      unit: 'Single',
-      img: '/images/product-shower-geometric.jpg',
-      icon: '🚿',
-    },
-  ],
-  table: [
-    {
-      id: 'table-ivory-runner',
-      name: 'Ivory Table Runner — Handloom',
-      desc: 'Clean ivory runner with subtle woven border. 14×72 inches. Prem Chand, Panipat.',
-      priceInPaise: 89900,
-      unit: 'Single',
-      img: '/images/product-table-ivory-runner.jpg',
-      icon: '🍽️',
-    },
-    {
-      id: 'table-jaipur-tablecloth',
-      name: 'Jaipur Block Print Tablecloth',
-      desc: 'Hand block-printed in traditional Jaipur motifs by Jahangir Alam. 60×90 inches.',
-      priceInPaise: 219900,
-      unit: 'Single',
-      img: '/images/product-table-jaipur-print.jpg',
-      icon: '🍽️',
-    },
-    {
-      id: 'table-terracotta-placemats',
-      name: 'Terracotta Placemats — Set 4',
-      desc: 'Warm terracotta with Sanganer block-print border. Tauhid Alam. 13×18 inches each.',
-      priceInPaise: 109900,
-      unit: 'Set/4',
-      img: '/images/product-table-terracotta-mats.jpg',
-      icon: '🍽️',
-    },
-    {
-      id: 'table-sage-napkins',
-      name: 'Sage Green Napkins — Set 6',
-      desc: 'Warm sage dinner napkins with hemstitched edges. Woven by Tufar Ali, Panipat.',
-      priceInPaise: 119900,
-      unit: 'Set/6',
-      img: '/images/product-table-sage-napkins.jpg',
-      icon: '🍽️',
-    },
-    {
-      id: 'table-natural-placemats',
-      name: 'Natural Woven Placemats — Set 6',
-      desc: 'Textured natural weave placemats. 13×18 inches each. CiCLO® certified polyester.',
-      priceInPaise: 149900,
-      unit: 'Set/6',
-      img: '/images/product-table-natural-mats.jpg',
-      icon: '🍽️',
-    },
-  ],
+/**
+ * Admin form ka "3999" ya "3,999.50" -> paise.
+ *
+ * Number(x) * 100 se nahi kiya: 39.99 * 100 JavaScript mein
+ * 3998.9999999999995 deta hai, aur Math.round use karne ke baad bhi
+ * ye wo tarah ki galti hai jo mahine baad ek rupaye ke fark mein
+ * dikhti hai. Rupaye aur paise alag-alag integer mein jodna seedha
+ * aur bilkul theek hai.
+ *
+ * Galat input pe null — taaki caller ko sochna pade, aur 0 chup-chaap
+ * price na ban jaye.
+ */
+export function parsePriceToPaise(input: string): number | null {
+  const cleaned = input.replace(/[₹,\s]/g, '')
+  if (!/^\d+(\.\d{1,2})?$/.test(cleaned)) return null
+
+  const [rupees, paise = ''] = cleaned.split('.')
+  return Number(rupees) * 100 + Number(paise.padEnd(2, '0'))
+}
+
+/** 399900 -> "3999.00", admin form ke input mein bharne ke liye. */
+export function paiseToInput(paise: number): string {
+  return (paise / 100).toFixed(2)
+}
+
+/**
+ * Photo ka path -> browser ke liye URL.
+ *
+ * Do tarah ke path aate hain, aur dono chalte rehne chahiye:
+ *
+ *   "/images/product-rug-sage.jpg"  repo ki public/ folder se — ye
+ *                                   purane 15 products hain, jo seed
+ *                                   mein waise hi rakhe gaye taaki
+ *                                   unhe dobara upload na karna pade
+ *
+ *   "a1b2c3/photo.jpg"              Supabase Storage bucket se — admin
+ *                                   ke naye uploads
+ */
+export function imageUrl(path: string): string {
+  if (!path) return ''
+  if (path.startsWith('/') || path.startsWith('http')) return path
+
+  const base = process.env.NEXT_PUBLIC_SUPABASE_URL ?? ''
+  return `${base}/storage/v1/object/public/${PRODUCT_BUCKET}/${path}`
+}
+
+/** Shop ke card pe dikhne wali photo — sabse chhote sort_order wali. */
+export function primaryImage(product: Product): ProductImage | null {
+  return product.images.length > 0 ? product.images[0] : null
 }
